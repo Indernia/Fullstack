@@ -3,9 +3,9 @@
 -- ===============================
 
 -- AdminUser
-INSERT INTO AdminUser (name, email) VALUES
-('Alice Admin', 'alice.admin@example.com'),
-('Bob Admin', 'bob.admin@example.com');
+INSERT INTO AdminUser (name, email, password) VALUES
+('Alice Admin', 'alice.admin@example.com', 'password123'),
+('Bob Admin', 'bob.admin@example.com', 'password456');
 
 -- "User"
 INSERT INTO "User" (name, email) VALUES
