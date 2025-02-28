@@ -51,11 +51,11 @@ INSERT INTO MenuSection (menuID, name) VALUES
 (3, 'Lunch Specials');
 
 -- MenuItem
-INSERT INTO MenuItem (photoLink, description, name, price, type) VALUES
-('', 'A simple green salad', 'Green Salad', 5.99, 'Appetizer'),
-('', 'Spicy chicken wings', 'Chicken Wings', 8.99, 'Appetizer'),
-('', 'Grilled salmon with lemon sauce', 'Grilled Salmon', 15.99, 'Entree'),
-('', 'Chocolate cake with rich frosting', 'Choco Overload', 6.99, 'Dessert');
+INSERT INTO MenuItem (sectionID, photoLink, description, name, price, type) VALUES
+(1, '', 'A simple green salad', 'Green Salad', 5.99, 'Appetizer'),
+(2, '', 'Spicy chicken wings', 'Chicken Wings', 8.99, 'Appetizer'),
+(2, '', 'Grilled salmon with lemon sauce', 'Grilled Salmon', 15.99, 'Entree'),
+(3, '', 'Chocolate cake with rich frosting', 'Choco Overload', 6.99, 'Dessert');
 
 -- MenuItemHasTag
 INSERT INTO MenuItemHasTag (menuItemID, tagID) VALUES

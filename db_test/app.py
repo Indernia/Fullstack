@@ -38,5 +38,27 @@ def getRestaurantMenus(restaurantID):
     return request
 
 
+@app.route('/menus/<menuID>/sections')
+def getSections(menuID):
+    request = query_db("""
+                          SELECT *
+                        FROM MenuSection
+                        WHERE menuID = ?
+                       """, args=(menuID))
+    return request
+
+
+@app.route('/menuItems/<sectionID>')
+def getMenuItems(sectionID):
+    request = query_db("""
+                        SELECT *
+                        FROM MenuItem
+                        WHERE sectionID = ?
+                       """, args=(sectionID))
+    return request
+
+
+
+
 if __name__ == '__main__':
-    app.run()
+    app.run(port=8080)

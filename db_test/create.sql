@@ -72,11 +72,13 @@ CREATE TABLE MenuSection (
 -- 9) MenuItem
 CREATE TABLE MenuItem (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sectionID INTEGER NOT NULL,
     photoLink TEXT,
     description TEXT,
     name TEXT NOT NULL,
     price REAL NOT NULL,
     type TEXT
+    FOREIGN KEY (sectionID) REFERENCES MenuSection(id)
 );
 
 -- 10) MenuItemHasTag
