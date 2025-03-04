@@ -1,90 +1,10 @@
-from flask import Flask, jsonify, request
-from database import query_db, insert_db
+from flask import Flask
+from restaurantAPI import restaurant_api_blueprint
 
 app = Flask(__name__)
 
-
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
-
-
-@app.route('/users')
-def get_users():
-    rv = query_db("SELECT * FROM User")
-    print(type(rv))
-    return rv
-
-
-@app.route('/users/adduser', methods=["POST"])
-def add_user():
-    name = request.form["name"]
-    email = request.form["email"]
-
-    insert_db(
-            'INSERT INTO User (name, email) VALUES (?,?)',
-            args=(name, email))
-    return jsonify({"message": "User added succesfully"}), 200
-
-@app.route('/users/<user_id>/update', methods=["PUT"])
-def update_user(user_id):
-    data = request.get_json()
-    name = data.get("name")
-    email = data.get("email")
-
-    if not name or not email:
-        return jsonify({"error": "Name and email are required"}), 400
-
-    # Update user in the database
-    insert_db(
-        """UPDATE User SET name = ?, email = ? WHERE id = ?""", 
-        args=(name, email, user_id)
-        )
-
-
-    return jsonify({"message": "User updated successfully"}), 200
-
-@app.route('/users/<user_id>', methods=["DELETE"])
-def delete_user(user_id):
-    try:
-        query_db('DELETE FROM User WHERE id = ?', args=(user_id,))
-
-        
-        return jsonify({"message": "User deleted successfully"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/restaurant/<restaurantID>/menus')
-def getRestaurantMenus(restaurantID):
-    request = query_db("""
-                       SELECT *
-                       FROM Menu
-                       WHERE restaurantID = ?
-                       """, args=(restaurantID))
-    return jsonify(request)
-
-
-@app.route('/menus/<menuID>/sections')
-def getSections(menuID):
-    request = query_db("""
-                          SELECT *
-                        FROM MenuSection
-                        WHERE menuID = ?
-                       """, args=(menuID))
-    return jsonify(request)
-
-
-@app.route('/menuItems/<sectionID>')
-def getMenuItems(sectionID):
-    request = query_db("""
-                        SELECT *
-                        FROM MenuItem
-                        WHERE sectionID = ?
-                       """, args=(sectionID))
-    return jsonify(request)
-
-
-
+# Register the API blueprint
+app.register_blueprint(restaurant_api_blueprint)
 
 if __name__ == '__main__':
     app.run(port=8080)
