@@ -24,7 +24,7 @@ def add_user():
     insert_db(
             'INSERT INTO User (name, email) VALUES (?,?)',
             args=(name, email))
-    return '', 200
+    return jsonify({"message": "User added succesfully"}), 200
 
 @app.route('/users/<user_id>/update', methods=["PUT"])
 def update_user(user_id):
@@ -33,8 +33,7 @@ def update_user(user_id):
     email = data.get("email")
 
     if not name or not email:
-        #jsonify({"error": "Name and email are required"})
-        return '', 400
+        return jsonify({"error": "Name and email are required"}), 400
 
     # Update user in the database
     insert_db(
@@ -42,19 +41,18 @@ def update_user(user_id):
         args=(name, email, user_id)
         )
 
-    #jsonify({"message": "User updated successfully"})
-    return '', 200
+
+    return jsonify({"message": "User updated successfully"}), 200
 
 @app.route('/users/<user_id>', methods=["DELETE"])
 def delete_user(user_id):
     try:
         query_db('DELETE FROM User WHERE id = ?', args=(user_id,))
 
-        #jsonify({"message": "User deleted successfully"})
-        return '', 200
+        
+        return jsonify({"message": "User deleted successfully"}), 200
     except Exception as e:
-        #jsonify({"error": str(e)})
-        return '', 500
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/restaurant/<restaurantID>/menus')
 def getRestaurantMenus(restaurantID):
@@ -63,7 +61,7 @@ def getRestaurantMenus(restaurantID):
                        FROM Menu
                        WHERE restaurantID = ?
                        """, args=(restaurantID))
-    return request
+    return jsonify(request)
 
 
 @app.route('/menus/<menuID>/sections')
@@ -73,7 +71,7 @@ def getSections(menuID):
                         FROM MenuSection
                         WHERE menuID = ?
                        """, args=(menuID))
-    return request
+    return jsonify(request)
 
 
 @app.route('/menuItems/<sectionID>')
@@ -83,7 +81,7 @@ def getMenuItems(sectionID):
                         FROM MenuItem
                         WHERE sectionID = ?
                        """, args=(sectionID))
-    return request
+    return jsonify(request)
 
 
 
