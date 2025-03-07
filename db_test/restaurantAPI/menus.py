@@ -1,14 +1,79 @@
 from flask import Blueprint, jsonify, request
 from database import query_db, insert_db
+from flasgger import swag_from
 
 menus_blueprint = Blueprint('menus', __name__)
 
+
 @menus_blueprint.route('/menus/<menuID>', methods=["GET"])
+@swag_from({
+    'tags': ['Menus'],
+    'responses': {
+        200: {
+            'description': 'A single menu',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'id': {
+                        'type': 'integer',
+                        'description': 'The ID of the menu'
+                    },
+                    'restaurantID': {
+                        'type': 'integer',
+                        'description': 'The ID of the restaurant this menu belongs to'
+                    },
+                    'description': {
+                        'type': 'string',
+                        'description': 'A description of the menu'
+                    }
+                }
+            }
+        },
+        404: {
+            'description': 'Menu not found'
+        }},
+    'parameters': [{
+        'name': 'menuID',
+        'description': 'The ID of the menu to retrieve',
+        'in': 'path',
+        'type': 'integer',
+        'required': True
+            }
+        ]})
 def get_menu(menuID):
     request_data = query_db("SELECT * FROM Menu WHERE id = ?", args=(menuID,))
     return jsonify(request_data)
 
+
 @menus_blueprint.route('/menus/add', methods=["POST"])
+@swag_from({
+    'tags': ['Menus'],
+    'responses': {
+        200: {
+            'description': 'Menu added successfully'
+        },
+        400: {
+            'description': 'Description and restaurantID are required'
+        }},
+    'parameters': [{
+        'name': 'body',
+        'description': 'Menu object',
+        'in': 'body',
+        'schema': {
+            'type': 'object',
+            'properties': {
+                'restaurantID': {
+                    'type': 'integer',
+                    'description': 'The ID of the restaurant this menu belongs to'
+                },
+                'description': {
+                    'type': 'string',
+                    'description': 'A description of the menu'
+                }
+            }
+        }
+            }
+        ]})
 def add_menu():
     data = request.get_json()
     restaurantID = data.get("restaurantID")
@@ -19,6 +84,41 @@ def add_menu():
 
 
 @menus_blueprint.route('/menus/<menuID>/update', methods=["PUT"])
+@swag_from({
+    'tags': ['Menus'],
+    'responses': {
+        200: {
+            'description': 'Menu updated successfully'
+        },
+        400: {
+            'description': 'Description and restaurantID are required'
+        }},
+    'parameters': [{
+        'name': 'menuID',
+        'description': 'The ID of the menu to update',
+        'in': 'path',
+        'type': 'integer',
+        'required': True
+            },
+        {
+        'name': 'body',
+        'description': 'Menu object',
+        'in': 'body',
+        'schema': {
+            'type': 'object',
+            'properties': {
+                'restaurantID': {
+                    'type': 'integer',
+                    'description': 'The ID of the restaurant this menu belongs to'
+                },
+                'description': {
+                    'type': 'string',
+                    'description': 'A description of the menu'
+                }
+            }
+        }
+            }
+        ]})
 def update_menu(menuID):
     data = request.get_json()
     description = data.get("description")
@@ -27,12 +127,26 @@ def update_menu(menuID):
     if not description or not restaurantID:
         return jsonify({"error": "Description and restaurantID are required"}), 400
 
-    insert_db("""UPDATE Menu SET description = ?, restaurantID = ? WHERE id = ?""", 
-               args=(description, restaurantID, menuID))
+    insert_db("UPDATE Menu SET description = ?, restaurantID = ? WHERE id = ?",
+              args=(description, restaurantID, menuID))
     return jsonify({"message": "Menu updated successfully"}), 200
 
 
 @menus_blueprint.route('/menus/<menuID>', methods=["DELETE"])
+@swag_from({
+    'tags': ['Menus'],
+    'responses': {
+        200: {
+            'description': 'Menu deleted successfully'
+        }},
+    'parameters': [{
+        'name': 'menuID',
+        'description': 'The ID of the menu to delete',
+        'in': 'path',
+        'type': 'integer',
+        'required': True
+            }
+        ]})
 def delete_menu(menuID):
     try:
         query_db('DELETE FROM Menu WHERE id = ?', args=(menuID,))
