@@ -44,6 +44,46 @@ def get_menu(menuID):
     request_data = query_db("SELECT * FROM Menu WHERE id = ?", args=(menuID,))
     return jsonify(request_data)
 
+@menus_blueprint.route('/menus/restaurant/<restaurantID>', methods=["GET"])
+@swag_from({
+    'tags': ['Menus'],
+    'description': 'Get all menus for a specific restaurant',
+    'parameters': [
+        {
+            'name': 'restaurantID',
+            'description': 'The ID of the restaurant to retrieve menus from',
+            'in': 'path',
+            'type': 'integer',
+            'required': True
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'A list of menus for the restaurant',
+            'schema': {
+                'type': 'array',
+                'items': {
+                    'type': 'object',
+                    'properties': {
+                        'id': {'type': 'integer', 'description': 'The ID of the menu'},
+                        'restaurantID': {'type': 'integer', 'description': 'The restaurant this menu belongs to'},
+                        'description': {'type': 'string', 'description': 'A description of the menu'}
+                    }
+                }
+            }
+        },
+        404: {
+            'description': 'No menus found for this restaurant'
+        }
+    }
+})
+def get_menus_by_restaurant(restaurantID):
+    request_data = query_db("SELECT * FROM Menu WHERE restaurantID = ?", args=(restaurantID,))
+    
+    if not request_data:
+        return jsonify({"error": "No menus found for this restaurant"}), 404
+    
+    return jsonify(request_data)
 
 @menus_blueprint.route('/menus/add', methods=["POST"])
 @swag_from({
