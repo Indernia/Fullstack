@@ -61,7 +61,7 @@ def get_menu_item(itemID):
     return jsonify(request_data)
 
 
-@menu_items_blueprint.route('/menuItems/<sectionID>', methods=["GET"])
+@menu_items_blueprint.route('/menuItems/section/<sectionID>', methods=["GET"])
 @swag_from({
     'tags': ['Menu Items'],
     'description': 'Get all menu items in a menu section',
@@ -185,6 +185,26 @@ def update_menu_item(itemID):
 
 
 @menu_items_blueprint.route('/menuItems/<itemID>', methods=["DELETE"])
+@swag_from({
+    'tags': ['Menu Items'],
+    'description': 'Delete a menu item',
+    'parameters': [
+        {
+            'name': 'itemID',
+            'description': 'The ID of the menu item to delete',
+            'in': 'path',
+            'type': 'integer',
+            'required': True
+        }],
+    'responses': {
+        200: {
+            'description': 'Menu item deleted successfully'
+        },
+        500: {
+            'description': 'An error occurred while deleting the menu item'
+        }
+    }
+})
 def delete_menu_item(itemID):
     try:
         query_db('DELETE FROM MenuItem WHERE id = ?', args=(itemID,))
