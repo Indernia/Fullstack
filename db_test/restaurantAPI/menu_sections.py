@@ -83,6 +83,24 @@ def add_menu_section():
     return jsonify({"message": "Menu section added successfully"}), 200
 
 
+@menu_sections_blueprint.route('/menuSections/menu/<menuID>', methods=["GET"])
+@swag_from({
+    'tags': ['Menu Sections'],
+    'description': 'Get all menu sections in a menu',
+    'parameters': [
+        {
+            'name': 'menuID',
+            'description': 'The ID of the menu to retrieve menu sections from',
+            'in': 'path',
+            'type': 'integer',
+            'required': True
+        }
+    ]
+})
+def get_menu_section(sectionID):
+    request_data = query_db("SELECT * FROM MenuSection WHERE menuID = ?", args=(sectionID,))
+    return jsonify(request_data)
+
 @menu_sections_blueprint.route('/menuSections/<sectionID>/update', methods=["PUT"])
 @swag_from({
     'tags': ['Menu Sections'],
