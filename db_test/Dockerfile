@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install  -r requirements.txt
 
 # Copy the rest of the application code
 COPY . .
@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 8000
 
 # Start the application with Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app:app"]
+CMD ["./gunicorn.sh"]
