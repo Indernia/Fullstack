@@ -97,7 +97,7 @@ def add_menu_section():
         }
     ]
 })
-def get_menu_section(menuID):
+def get_menu_sections_by_menu(menuID):
     request_data = query_db("SELECT * FROM MenuSection WHERE menuID = ?", args=(menuID,))
     return jsonify(request_data)
 
