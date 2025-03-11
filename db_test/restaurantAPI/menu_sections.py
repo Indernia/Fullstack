@@ -97,8 +97,8 @@ def add_menu_section():
         }
     ]
 })
-def get_menu_section(sectionID):
-    request_data = query_db("SELECT * FROM MenuSection WHERE menuID = ?", args=(sectionID,))
+def get_menu_section(menuID):
+    request_data = query_db("SELECT * FROM MenuSection WHERE menuID = ?", args=(menuID,))
     return jsonify(request_data)
 
 @menu_sections_blueprint.route('/menuSections/<sectionID>/update', methods=["PUT"])
