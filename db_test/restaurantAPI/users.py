@@ -75,6 +75,9 @@ def add_user():
     name = data.get("name")
     email = data.get("email")
 
+    if not name or not email:
+        return jsonify({"error": "Name and email are required"}), 400
+
     insert_db('INSERT INTO User (name, email) VALUES (?, ?)',
               args=(name, email))
     return jsonify({"message": "User added successfully"}), 200
