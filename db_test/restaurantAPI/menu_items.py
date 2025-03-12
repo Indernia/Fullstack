@@ -207,7 +207,7 @@ def update_menu_item(itemID):
 })
 def delete_menu_item(itemID):
     try:
-        query_db('DELETE FROM MenuItem WHERE id = ?', args=(itemID,))
+        insert_db('DELETE FROM MenuItem WHERE id = ?', args=(itemID,))
         return jsonify({"message": "Menu Item deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -160,7 +160,7 @@ def update_rating(rating_id):
 })
 def delete_rating(rating_id):
     try:
-        query_db('DELETE FROM Rating WHERE id = ?', args=(rating_id,))
+        insert_db('DELETE FROM Rating WHERE id = ?', args=(rating_id,))
         return jsonify({"message": "Rating deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

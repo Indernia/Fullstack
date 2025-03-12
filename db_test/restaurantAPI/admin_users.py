@@ -124,3 +124,4 @@ def delete_admin_user(adminID):
 
     insert_db("DELETE FROM AdminUser WHERE id = ?", args=(adminID,))
     return jsonify({"message": "Admin user deleted successfully"}), 200
+

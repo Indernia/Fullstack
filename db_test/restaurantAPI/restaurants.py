@@ -150,7 +150,7 @@ def update_restaurant(restaurant_id):
 })
 def delete_restaurant(restaurantID):
     try:
-        query_db('DELETE FROM Restaurant WHERE id = ?', args=(restaurantID,))
+        insert_db('DELETE FROM Restaurant WHERE id = ?', args=(restaurantID,))
         return jsonify({"message": "Restaurant deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

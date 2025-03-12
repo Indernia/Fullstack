@@ -149,7 +149,7 @@ def update_user(user_id):
 })
 def delete_user(user_id):
     try:
-        query_db('DELETE FROM User WHERE id = ?', args=(user_id,))
+        insert_db('DELETE FROM User WHERE id = ?', args=(user_id,))
         return jsonify({"message": "User deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
