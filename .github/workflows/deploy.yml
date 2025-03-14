@@ -39,6 +39,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.DOCKER_PORT }}
+          debug: true
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest
             docker stop myapp || true
