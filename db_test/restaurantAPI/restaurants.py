@@ -52,6 +52,53 @@ def get_restaurant(restaurantID):
     request_data = query_db("SELECT * FROM Restaurant WHERE id = ?", args=(restaurantID,))
     return jsonify(request_data)
 
+@restaurants_blueprint.route('/restaurants', methods=["GET"])
+@swag_from({
+    'tags': ['Restaurants'],
+    'responses': {
+        200: {
+            'description': 'A list of all restaurants',
+            'schema': {
+                'type': 'array',
+                'items': {
+                    'type': 'object',
+                    'properties': {
+                        'id': {
+                            'type': 'integer',
+                            'description': 'The ID of the restaurant'
+                        },
+                        'name': {
+                            'type': 'string',
+                            'description': 'The name of the restaurant'
+                        },
+                        'chainID': {
+                            'type': 'integer',
+                            'description': 'The ID of the chain this restaurant belongs to'
+                        },
+                        'latitude': {
+                            'type': 'number',
+                            'description': 'The latitude of the restaurant'
+                        },
+                        'longitude': {
+                            'type': 'number',
+                            'description': 'The longitude of the restaurant'
+                        }
+                    }
+                }
+            }
+        },
+        500: {
+            'description': 'Internal Server Error'
+        }
+    }
+})
+def get_all_restaurants():
+    try:
+        restaurants = query_db("SELECT * FROM Restaurant")
+        return jsonify(restaurants), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @restaurants_blueprint.route('/restaurant/add', methods=["POST"])
 @swag_from({
