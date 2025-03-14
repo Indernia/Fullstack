@@ -1,0 +1,41 @@
+name: Deploy to Server with Docker
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: debian-12
+
+    steps:
+      # Step 1: Checkout the code from GitHub
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Log in to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Step 3: Build and push Docker image
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest
+
+      # Step 4: SSH into server and deploy the new container
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest
+            docker stop myapp || true
+            docker rm myapp || true
+            docker run -d --name myapp -p 8000:8000 --restart always ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest
