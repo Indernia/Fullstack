@@ -77,7 +77,7 @@ CREATE TABLE MenuItem (
     description TEXT,
     name TEXT NOT NULL,
     price REAL NOT NULL,
-    type TEXT
+    type TEXT,
     FOREIGN KEY (sectionID) REFERENCES MenuSection(id)
 );
 
