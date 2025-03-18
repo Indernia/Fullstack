@@ -21,7 +21,7 @@ admin_users_blueprint = Blueprint('admin_users', __name__)
     }
 })
 def get_admin_user(adminID):
-    admin_user = query_db("SELECT * FROM AdminUser WHERE id = ?", args=(adminID,), one=True)
+    admin_user = query_db("SELECT * FROM AdminUser WHERE id = %s", args=(adminID,), one=True)
     if admin_user:
         return jsonify(admin_user), 200
     return jsonify({"error": "Admin user not found"}), 404
@@ -57,7 +57,7 @@ def add_admin_user():
     if not name or not email or not password:
         return jsonify({"error": "Missing required fields"}), 400
 
-    insert_db("INSERT INTO AdminUser (name, email, password) VALUES (?, ?, ?)", args=(name, email, password))
+    insert_db("INSERT INTO AdminUser (name, email, password) VALUES (%s, %s, %s)", args=(name, email, password))
     return jsonify({"message": "Admin user created successfully"}), 201
 
 @admin_users_blueprint.route('/adminUsers/<int:adminID>', methods=["PUT"])
@@ -94,11 +94,11 @@ def update_admin_user(adminID):
     email = data.get("email")
     password = data.get("password")
 
-    existing_user = query_db("SELECT id FROM AdminUser WHERE id = ?", args=(adminID,), one=True)
+    existing_user = query_db("SELECT id FROM AdminUser WHERE id = %s", args=(adminID,), one=True)
     if not existing_user:
         return jsonify({"error": "Admin user not found"}), 404
 
-    insert_db("UPDATE AdminUser SET name = ?, email = ?, password = ? WHERE id = ?", args=(name, email, password, adminID))
+    insert_db("UPDATE AdminUser SET name = %s, email = %s, password = %s WHERE id = %s", args=(name, email, password, adminID))
     return jsonify({"message": "Admin user updated successfully"}), 200
 
 @admin_users_blueprint.route('/adminUsers/<int:adminID>', methods=["DELETE"])
@@ -118,10 +118,10 @@ def update_admin_user(adminID):
     }
 })
 def delete_admin_user(adminID):
-    existing_user = query_db("SELECT id FROM AdminUser WHERE id = ?", args=(adminID,), one=True)
+    existing_user = query_db("SELECT id FROM AdminUser WHERE id = %s", args=(adminID,), one=True)
     if not existing_user:
         return jsonify({"error": "Admin user not found"}), 404
 
-    insert_db("DELETE FROM AdminUser WHERE id = ?", args=(adminID,))
+    insert_db("DELETE FROM AdminUser WHERE id = %s", args=(adminID,))
     return jsonify({"message": "Admin user deleted successfully"}), 200
 

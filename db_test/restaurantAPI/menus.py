@@ -41,7 +41,7 @@ menus_blueprint = Blueprint('menus', __name__)
             }
         ]})
 def get_menu(menuID):
-    request_data = query_db("SELECT * FROM Menu WHERE id = ?", args=(menuID,))
+    request_data = query_db("SELECT * FROM Menu WHERE id = %s", args=(menuID,))
     return jsonify(request_data)
 
 @menus_blueprint.route('/menus/restaurant/<restaurantID>', methods=["GET"])
@@ -78,7 +78,7 @@ def get_menu(menuID):
     }
 })
 def get_menus_by_restaurant(restaurantID):
-    request_data = query_db("SELECT * FROM Menu WHERE restaurantID = ?", args=(restaurantID,))
+    request_data = query_db("SELECT * FROM Menu WHERE restaurantID = %s", args=(restaurantID,))
     
     if not request_data:
         return jsonify({"error": "No menus found for this restaurant"}), 404
@@ -119,7 +119,7 @@ def add_menu():
     restaurantID = data.get("restaurantID")
     description = data.get("description")
 
-    insert_db('INSERT INTO Menu (restaurantID, description) VALUES (?, ?)', args=(restaurantID, description))
+    insert_db('INSERT INTO Menu (restaurantID, description) VALUES (%s, %s)', args=(restaurantID, description))
     return jsonify({"message": "Menu added successfully"}), 200
 
 
@@ -167,7 +167,7 @@ def update_menu(menuID):
     if not description or not restaurantID:
         return jsonify({"error": "Description and restaurantID are required"}), 400
 
-    insert_db("UPDATE Menu SET description = ?, restaurantID = ? WHERE id = ?",
+    insert_db("UPDATE Menu SET description = %s, restaurantID = %s WHERE id = %s",
               args=(description, restaurantID, menuID))
     return jsonify({"message": "Menu updated successfully"}), 200
 
@@ -189,7 +189,7 @@ def update_menu(menuID):
         ]})
 def delete_menu(menuID):
     try:
-        insert_db('DELETE FROM Menu WHERE id = ?', args=(menuID,))
+        insert_db('DELETE FROM Menu WHERE id = %s', args=(menuID,))
         return jsonify({"message": "Menu deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

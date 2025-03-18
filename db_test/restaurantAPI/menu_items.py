@@ -57,7 +57,7 @@ menu_items_blueprint = Blueprint('menu_items', __name__)
             }
         ]})
 def get_menu_item(itemID):
-    request_data = query_db("SELECT * FROM MenuItem WHERE id = ?", args=(itemID,))
+    request_data = query_db("SELECT * FROM MenuItem WHERE id = %s", args=(itemID,))
     return jsonify(request_data)
 
 
@@ -76,7 +76,7 @@ def get_menu_item(itemID):
     ]
 })
 def get_menu_items_by_section(sectionID):
-    request_data = query_db("SELECT * FROM MenuItem WHERE sectionID = ?",
+    request_data = query_db("SELECT * FROM MenuItem WHERE sectionID = %s",
                             args=(sectionID,))
     return jsonify(request_data)
 
@@ -131,7 +131,7 @@ def add_menu_item():
     price = data.get("price")
     type = data.get("type")
 
-    insert_db('INSERT INTO MenuItem (sectionID, photoLink, description, name, price, type) VALUES (?, ?, ?, ?, ?, ?)', 
+    insert_db('INSERT INTO MenuItem (sectionID, photoLink, description, name, price, type) VALUES (%s, %s, %s, %s, %s, %s)', 
               args=(sectionID, photoLink, description, name, price, type))
     return jsonify({"message": "Menu item added successfully"}), 200
 
@@ -179,7 +179,7 @@ def update_menu_item(itemID):
     if not name or not price or not type or not sectionID:
         return jsonify({"error": "Name, price, type, and sectionID are required"}), 400
 
-    insert_db("""UPDATE MenuItem SET name = ?, price = ?, type = ?, sectionID = ? WHERE id = ?""", 
+    insert_db("""UPDATE MenuItem SET name = %s, price = %s, type = %s, sectionID = %s WHERE id = %s""", 
                args=(name, price, type, sectionID, itemID))
     return jsonify({"message": "Menu Item updated successfully"}), 200
 
@@ -207,7 +207,7 @@ def update_menu_item(itemID):
 })
 def delete_menu_item(itemID):
     try:
-        insert_db('DELETE FROM MenuItem WHERE id = ?', args=(itemID,))
+        insert_db('DELETE FROM MenuItem WHERE id = %s', args=(itemID,))
         return jsonify({"message": "Menu Item deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

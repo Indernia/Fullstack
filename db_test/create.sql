@@ -1,9 +1,6 @@
--- Enable foreign key checks in SQLite
-PRAGMA foreign_keys = ON;
-
 -- 1) AdminUser
 CREATE TABLE AdminUser (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     name TEXT NOT NULL,
     email TEXT NOT NULL,
     password TEXT NOT NULL
@@ -11,23 +8,22 @@ CREATE TABLE AdminUser (
 
 -- 2) "User"
 CREATE TABLE "User" (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     name TEXT NOT NULL,
     email TEXT NOT NULL
 );
 
 -- 3) Tag
 CREATE TABLE Tag (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     tagType TEXT NOT NULL,
     tagValue TEXT NOT NULL,
     tagDescription TEXT
 );
 
 -- 4) RestaurantChain
--- Assuming ownerID references AdminUser (owner is an admin)
 CREATE TABLE RestaurantChain (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     name TEXT NOT NULL,
     ownerID INTEGER NOT NULL,
     FOREIGN KEY (ownerID) REFERENCES AdminUser(id)
@@ -35,7 +31,7 @@ CREATE TABLE RestaurantChain (
 
 -- 5) Restaurant
 CREATE TABLE Restaurant (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     name TEXT NOT NULL,
     chainID INTEGER NOT NULL,
     latitude REAL,
@@ -45,8 +41,8 @@ CREATE TABLE Restaurant (
 
 -- 6) Rating
 CREATE TABLE Rating (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    rating INTEGER NOT NULL,       -- Could add CHECK(rating BETWEEN 1 AND 5) if desired
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
+    rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5), 
     restaurantID INTEGER NOT NULL,
     text TEXT,
     FOREIGN KEY (restaurantID) REFERENCES Restaurant(id)
@@ -54,16 +50,15 @@ CREATE TABLE Rating (
 
 -- 7) Menu
 CREATE TABLE Menu (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     restaurantID INTEGER NOT NULL,
     description TEXT,
     FOREIGN KEY (restaurantID) REFERENCES Restaurant(id)
 );
 
 -- 8) MenuSection
--- Note: The logical model duplicated "int menuID"; we keep only one here.
 CREATE TABLE MenuSection (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     menuID INTEGER NOT NULL,
     name TEXT NOT NULL,
     FOREIGN KEY (menuID) REFERENCES Menu(id)
@@ -71,7 +66,7 @@ CREATE TABLE MenuSection (
 
 -- 9) MenuItem
 CREATE TABLE MenuItem (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     sectionID INTEGER NOT NULL,
     photoLink TEXT,
     description TEXT,
@@ -83,7 +78,7 @@ CREATE TABLE MenuItem (
 
 -- 10) MenuItemHasTag
 CREATE TABLE MenuItemHasTag (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     menuItemID INTEGER NOT NULL,
     tagID INTEGER NOT NULL,
     FOREIGN KEY (menuItemID) REFERENCES MenuItem(id),
@@ -92,7 +87,7 @@ CREATE TABLE MenuItemHasTag (
 
 -- 11) UserLikesTag
 CREATE TABLE UserLikesTag (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     userID INTEGER NOT NULL,
     tagID INTEGER NOT NULL,
     FOREIGN KEY (userID) REFERENCES "User"(id),
@@ -101,7 +96,7 @@ CREATE TABLE UserLikesTag (
 
 -- 12) UserLikesMenuItem
 CREATE TABLE UserLikesMenuItem (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     userID INTEGER NOT NULL,
     menuItemID INTEGER NOT NULL,
     FOREIGN KEY (userID) REFERENCES "User"(id),
@@ -110,7 +105,7 @@ CREATE TABLE UserLikesMenuItem (
 
 -- 13) RestaurantTable
 CREATE TABLE RestaurantTable (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     restaurantID INTEGER NOT NULL,
     tableNumber INTEGER NOT NULL,
     name TEXT,
