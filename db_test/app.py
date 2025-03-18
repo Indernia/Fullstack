@@ -13,4 +13,4 @@ swagger = Swagger(app)
 CORS(app, origins="*", methods=["GET", "POST", "PUT", "DELETE"])
 
 if __name__ == '__main__':
-    app.run(port=8080)
+    app.run(port=8000)

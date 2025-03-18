@@ -2,4 +2,4 @@ flask
 flask-cors
 flasgger
 gunicorn
-psycopg2
+psycopg2-binary
