@@ -14,6 +14,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Debug docker
+        run: |
+          echo ${{ secrets.DOCKER_USERNAME }}
+          echo ${{ secrets.DOCKER_PASSWORD }}
       # Step 2: Log in to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -24,16 +28,18 @@ jobs:
       # Step 3: Build and push Docker image
       - name: Build and push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest -f db_test/Dockerfile db_test
           docker push ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest
 
       # Step 4: SSH into server and deploy the new container
       - name: Deploy to Server
-        uses: appleboy/ssh-action@v0.1.4
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.DOCKER_PORT }}
+          debug: true
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest
             docker stop myapp || true
