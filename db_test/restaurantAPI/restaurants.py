@@ -49,7 +49,7 @@ restaurants_blueprint = Blueprint('restaurants', __name__)
             }
         ]})
 def get_restaurant(restaurantID):
-    request_data = query_db("SELECT * FROM Restaurant WHERE id = %s", args=(restaurantID,))
+    request_data = query_db("SELECT * FROM restaurant WHERE id = %s", args=(restaurantID,))
     return jsonify(request_data)
 
 @restaurants_blueprint.route('/restaurants', methods=["GET"])
@@ -94,7 +94,7 @@ def get_restaurant(restaurantID):
 })
 def get_all_restaurants():
     try:
-        restaurants = query_db("SELECT * FROM Restaurant")
+        restaurants = query_db("SELECT * FROM restaurant")
         return jsonify(restaurants), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -142,7 +142,7 @@ def add_restaurant():
     latitude = data.get("latitude")
     longitude = data.get("longitude")
 
-    insert_db('INSERT INTO Restaurant (name, chainID, latitude, longitude) VALUES (%s, %s, %s, %s)', 
+    insert_db('INSERT INTO restaurant (name, chainID, latitude, longitude) VALUES (%s, %s, %s, %s)', 
               args=(name, chainID, latitude, longitude))
     return jsonify({"message": "Restaurant added successfully"}), 200
 
@@ -173,7 +173,7 @@ def update_restaurant(restaurant_id):
     if not name or not chain_id or not latitude or not longitude:
         return jsonify({"error": "Missing required fields"}), 400
 
-    insert_db("UPDATE Restaurant SET name = %s, chainID = %s, latitude = %s, longitude = %s WHERE id = %s", 
+    insert_db("UPDATE restaurant SET name = %s, chainID = %s, latitude = %s, longitude = %s WHERE id = %s", 
               args=(name, chain_id, latitude, longitude, restaurant_id))
     return jsonify({"message": "Restaurant updated successfully"}), 200
 
@@ -197,7 +197,7 @@ def update_restaurant(restaurant_id):
 })
 def delete_restaurant(restaurantID):
     try:
-        insert_db('DELETE FROM Restaurant WHERE id = %s', args=(restaurantID,))
+        insert_db('DELETE FROM restaurant WHERE id = %s', args=(restaurantID,))
         return jsonify({"message": "Restaurant deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

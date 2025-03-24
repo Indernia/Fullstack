@@ -43,7 +43,7 @@ ratings_blueprint = Blueprint('ratings', __name__)
 })
 def get_ratings():
     try:
-        ratings = query_db('SELECT * FROM Rating')
+        ratings = query_db('SELECT * FROM rating')
         return jsonify(ratings), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -92,7 +92,7 @@ def add_rating():
     if not rating_value or not restaurant_id:
         return jsonify({"error": "Rating and restaurantID are required"}), 400
 
-    insert_db('INSERT INTO Rating (rating, restaurantID, text) VALUES (%s, %s, %s)',
+    insert_db('INSERT INTO rating (rating, restaurantID, text) VALUES (%s, %s, %s)',
               args=(rating_value, restaurant_id, text))
     return jsonify({"message": "Rating added successfully"}), 200
 
@@ -139,7 +139,7 @@ def update_rating(rating_id):
         return jsonify({"error": "Rating is required"}), 400
 
     try:
-        insert_db('UPDATE Rating SET rating = %s, text = %s WHERE id = %s',
+        insert_db('UPDATE rating SET rating = %s, text = %s WHERE id = %s',
                   args=(rating_value, text, rating_id))
         return jsonify({"message": "Rating updated successfully"}), 200
     except Exception as e:
@@ -160,7 +160,7 @@ def update_rating(rating_id):
 })
 def delete_rating(rating_id):
     try:
-        insert_db('DELETE FROM Rating WHERE id = %s', args=(rating_id,))
+        insert_db('DELETE FROM rating WHERE id = %s', args=(rating_id,))
         return jsonify({"message": "Rating deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

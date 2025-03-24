@@ -15,6 +15,7 @@ services:
       - mynetwork
     volumes:
       - pg_data:/var/lib/postgresql/data
+      - ./db-init-scripts:/docker-entrypoint-initdb.d
 
   myapp:
     build: ./db_test
@@ -25,7 +26,7 @@ services:
     environment:
       DATABASE_URL: postgresql://myuser:mypassword@postgres:5432/mydatabase
     ports:
-      - "8080:8080"
+      - "8000:8000"
     networks:
       - mynetwork
 
