@@ -111,3 +111,28 @@ CREATE TABLE RestaurantTable (
     name TEXT,
     FOREIGN KEY (restaurantID) REFERENCES Restaurant(id)
 );
+
+
+-- 14) Order
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
+    restaurantID INTEGER NOT NULL,
+    userID INTEGER NOT NULL,
+    tableID INTEGER NOT NULL,
+    orderTime TIMESTAMP NOT NULL,
+    orderCost REAL NOT NULL,
+    orderComplete BOOLEAN NOT NULL,
+    FOREIGN KEY (userID) REFERENCES "User"(id),
+    FOREIGN KEY (tableID) REFERENCES RestaurantTable(id),
+    FOREIGN KEY (restaurantID) REFERENCES Restaurant(id)
+);
+
+
+-- 15) OrderIncludesMenuItem
+CREATE TABLE OrderIncludesMenuItem (
+    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
+    orderID INTEGER NOT NULL,
+    menuItemID INTEGER NOT NULL,
+    FOREIGN KEY (orderID) REFERENCES orders(id),
+    FOREIGN KEY (menuItemID) REFERENCES MenuItem(id)
+);
