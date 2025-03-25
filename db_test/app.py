@@ -18,6 +18,6 @@ if __name__ == '__main__':
     app.run(port=8000)
 
 
-app.config["JWT_SECRET_KEY"] = "your_secret_key"
+app.config["JWT_SECRET_KEY"] = "MEGAGIGASECRETJAMNOWKEYSUPERSAFE!!!!!!"
 Bcrypt.init_app(app)
 jwt = JWTManager(app)
