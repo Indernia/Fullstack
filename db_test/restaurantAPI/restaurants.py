@@ -1,6 +1,8 @@
 from flask import Blueprint, jsonify, request
 from database import query_db, insert_db
 from flasgger import swag_from
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
+
 
 restaurants_blueprint = Blueprint('restaurants', __name__)
 
@@ -101,6 +103,7 @@ def get_all_restaurants():
 
 
 @restaurants_blueprint.route('/restaurant/add', methods=["POST"])
+@jwt_required()
 @swag_from({
     'tags': ['Restaurants'],
     'responses': {
