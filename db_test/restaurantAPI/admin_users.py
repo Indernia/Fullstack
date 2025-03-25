@@ -1,6 +1,9 @@
 from flask import Blueprint, jsonify, request
 from database import query_db, insert_db
 from flasgger import swag_from
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
+
 
 admin_users_blueprint = Blueprint('admin_users', __name__)
 
@@ -56,9 +59,49 @@ def add_admin_user():
 
     if not name or not email or not password:
         return jsonify({"error": "Missing required fields"}), 400
+    
+    #Hashing the password for secure sotrage.
+    hashed_password = Bcrypt.generate_password_hash(password).decode('utf-8')
 
-    insert_db("INSERT INTO adminuser (name, email, password) VALUES (%s, %s, %s)", args=(name, email, password))
+
+    insert_db("INSERT INTO adminuser (name, email, password) VALUES (%s, %s, %s)", args=(name, email, hashed_password))
     return jsonify({"message": "Admin user created successfully"}), 201
+
+# 🔹 Login Admin (JWT Authentication)
+@admin_users_blueprint.route('/adminUsers/login', methods=["POST"])
+@swag_from({
+    'tags': ['Admin Users'],
+    'description': 'Login admin user and get a JWT token',
+    'parameters': [{
+        'name': 'body',
+        'in': 'body',
+        'schema': {
+            'type': 'object',
+            'properties': {
+                'email': {'type': 'string', 'example': 'admin@example.com'},
+                'password': {'type': 'string', 'example': 'password123'}
+            },
+            'required': ['email', 'password']
+        }
+    }],
+    'responses': {
+        200: {'description': 'Login successful, JWT token returned'},
+        401: {'description': 'Invalid credentials'}
+    }
+})
+def admin_login():
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
+
+    user = query_db("SELECT id, password FROM AdminUser WHERE email = ?", args=(email,), one=True)
+    
+    if not user or not Bcrypt.check_password_hash(user['password'], password):
+        return jsonify({"error": "email or password may be incorrect"}), 401
+
+    # 🔹 Generate JWT token
+    access_token = create_access_token(identity={"id": user["id"], "email": email})
+    return jsonify(access_token=access_token), 200
 
 @admin_users_blueprint.route('/adminUsers/<int:adminID>', methods=["PUT"])
 @swag_from({
@@ -97,8 +140,10 @@ def update_admin_user(adminID):
     existing_user = query_db("SELECT id FROM adminuser WHERE id = %s", args=(adminID,), one=True)
     if not existing_user:
         return jsonify({"error": "Admin user not found"}), 404
+    
+    hashed_password = Bcrypt.generate_password_hash(password).decode('utf-8')
 
-    insert_db("UPDATE adminuser SET name = %s, email = %s, password = %s WHERE id = %s", args=(name, email, password, adminID))
+    insert_db("UPDATE adminuser SET name = %s, email = %s, password = %s WHERE id = %s", args=(name, email, hashed_password, adminID))
     return jsonify({"message": "Admin user updated successfully"}), 200
 
 @admin_users_blueprint.route('/adminUsers/<int:adminID>', methods=["DELETE"])
