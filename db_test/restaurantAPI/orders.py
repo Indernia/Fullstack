@@ -1,12 +1,14 @@
 from flask import Blueprint, request, jsonify
 from database import query_db, insert_db
 from flasgger import swag_from
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 orders_blueprint = Blueprint('orders', __name__)
 
 
 @orders_blueprint.route('/orders/<restaurantId>/', methods=["GET"])
+@jwt_required()
 @swag_from({
     'tags': ['Orders'],
     'responses': {
@@ -42,11 +44,32 @@ orders_blueprint = Blueprint('orders', __name__)
                 }
             }
         },
+        401: {
+            'description': 'Not autherized'
+            },
         404: {
             'description': 'Orders not found'
         }},
     })
 def get_orders(restaurantId):
+    token = request.headers.get('Authorization')
+
+    print(token)
+    userid = get_jwt_identity()["id"]
+    print(userid)
+
+    restaurantsForUser = query_db("""
+                                  SELECT C.ownerid
+                                  FROM restaurant R
+                                  LEFT JOIN restaurantchain C ON R.chainid = C.id
+                                  WHERE R.id = %s
+                                  LIMIT 1
+                                  """, args=(restaurantId), one=True)
+    if userid != restaurantsForUser["ownerid"]:
+        print(restaurantsForUser)
+        print(userid)
+        return jsonify({"message": "you do not have access to this restaurant"}), 401
+
     request_data = query_db("SELECT * FROM orders WHERE restaurantId = %s AND orderComplete = false"
                             , args=(restaurantId))
     return jsonify(request_data)

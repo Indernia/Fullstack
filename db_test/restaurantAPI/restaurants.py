@@ -145,7 +145,7 @@ def add_restaurant():
     latitude = data.get("latitude")
     longitude = data.get("longitude")
 
-    insert_db('INSERT INTO restaurant (name, chainID, latitude, longitude) VALUES (%s, %s, %s, %s)', 
+    insert_db('INSERT INTO restaurant (name, chainID, latitude, longitude) VALUES (%s, %s, %s, %s)',
               args=(name, chainID, latitude, longitude))
     return jsonify({"message": "Restaurant added successfully"}), 200
 
