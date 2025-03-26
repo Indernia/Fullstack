@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
+import math
 
 
 restaurants_blueprint = Blueprint('restaurants', __name__)
@@ -204,3 +205,118 @@ def delete_restaurant(restaurantID):
         return jsonify({"message": "Restaurant deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@restaurants_blueprint.route('/restaurants/closest/', methods=["GET"])
+@swag_from({
+    'tags': ['Restaurants'],
+    'responses': {
+        200: {
+            'description': 'A list of the 10 closest restaurants to the given latitude and longitude',
+            'schema': {
+                'type': 'array',
+                'items': {
+                    'type': 'object',
+                    'properties': {
+                        'id': {
+                            'type': 'integer',
+                            'description': 'The ID of the restaurant'
+                        },
+                        'name': {
+                            'type': 'string',
+                            'description': 'The name of the restaurant'
+                        },
+                        'chainID': {
+                            'type': 'integer',
+                            'description': 'The ID of the chain this restaurant belongs to'
+                        },
+                        'latitude': {
+                            'type': 'number',
+                            'description': 'The latitude of the restaurant'
+                        },
+                        'longitude': {
+                            'type': 'number',
+                            'description': 'The longitude of the restaurant'
+                        }
+
+                    }
+                }
+            }
+        },
+        400: {
+            'description': 'Latitude and longitude are required'
+        }},
+    'parameters': [{
+        'name': 'lat',
+        'description': 'The latitude of the location to search from',
+        'in': 'query',
+        'type': 'number',
+        'required': True
+    }, {
+        'name': 'lon',
+        'description': 'The longitude of the location to search from',
+        'in': 'query',
+        'type': 'number',
+        'required': True
+    }, {
+        'name': 'radius_km',
+        'description': 'The radius in kilometers to search within',
+        'in': 'query',
+        'type': 'number',
+        'required': False
+    }]
+})
+def get_closest_10_restaurants():
+    lat = float(request.args.get('lat'))
+    lon = float(request.args.get('lon'))
+    radius_km = float(request.args.get('radius_km', 10))
+    min_lat, max_lat, min_lon, max_lon = get_bounding_box(lat, lon, radius_km)
+
+    restaurants = query_db("SELECT * FROM restaurant WHERE latitude BETWEEN %s AND %s AND longitude BETWEEN %s AND %s",
+                           args=(min_lat, max_lat, min_lon, max_lon))
+    restaurants = sorted(restaurants, key=lambda x: haversine(lat, lon, x['latitude'], x['longitude']))
+    return jsonify(restaurants[:10])
+
+
+
+def get_bounding_box(lat, lon, radius_km):
+    # Approximate radius of Earth in km
+    R = 6371.0
+
+    # Convert latitude and longitude from degrees to radians
+    lat_rad = math.radians(lat)
+
+    # Latitude bounds (1 deg ~ 111 km)
+    delta_lat = radius_km / 111.0
+
+    # Longitude bounds (1 deg ~ varies with latitude)
+    delta_lon = radius_km / (111.320 * math.cos(lat_rad))
+
+    min_lat = lat - delta_lat
+    max_lat = lat + delta_lat
+    min_lon = lon - delta_lon
+    max_lon = lon + delta_lon
+
+    return min_lat, max_lat, min_lon, max_lon
+
+
+def haversine(lat1, lon1, lat2, lon2):
+    """
+    taken from the following source: https://www.geeksforgeeks.org/haversine-formula-to-find-distance-between-two-points-on-a-sphere/
+    """
+    # distance between latitudes
+    # and longitudes
+    dLat = (lat2 - lat1) * math.pi / 180.0
+    dLon = (lon2 - lon1) * math.pi / 180.0
+ 
+    # convert to radians
+    lat1 = (lat1) * math.pi / 180.0
+    lat2 = (lat2) * math.pi / 180.0
+ 
+    # apply formulae
+    a = (pow(math.sin(dLat / 2), 2) +
+         pow(math.sin(dLon / 2), 2) *
+             math.cos(lat1) * math.cos(lat2));
+    rad = 6371
+    c = 2 * math.asin(math.sqrt(a))
+    return rad * c
