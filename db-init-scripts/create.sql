@@ -7,7 +7,7 @@ CREATE TABLE AdminUser (
 );
 
 -- 2) "User"
-CREATE TABLE "User" (
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     name TEXT NOT NULL,
     email TEXT NOT NULL
@@ -90,7 +90,7 @@ CREATE TABLE UserLikesTag (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     userID INTEGER NOT NULL,
     tagID INTEGER NOT NULL,
-    FOREIGN KEY (userID) REFERENCES "User"(id),
+    FOREIGN KEY (userID) REFERENCES users(id),
     FOREIGN KEY (tagID) REFERENCES Tag(id)
 );
 
@@ -99,7 +99,7 @@ CREATE TABLE UserLikesMenuItem (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     userID INTEGER NOT NULL,
     menuItemID INTEGER NOT NULL,
-    FOREIGN KEY (userID) REFERENCES "User"(id),
+    FOREIGN KEY (userID) REFERENCES users(id),
     FOREIGN KEY (menuItemID) REFERENCES MenuItem(id)
 );
 
@@ -122,7 +122,7 @@ CREATE TABLE orders (
     orderTime TIMESTAMP NOT NULL,
     orderCost REAL NOT NULL,
     orderComplete BOOLEAN NOT NULL,
-    FOREIGN KEY (userID) REFERENCES "User"(id),
+    FOREIGN KEY (userID) REFERENCES users(id),
     FOREIGN KEY (tableID) REFERENCES RestaurantTable(id),
     FOREIGN KEY (restaurantID) REFERENCES Restaurant(id)
 );
