@@ -8,7 +8,7 @@ INSERT INTO AdminUser (name, email, password) VALUES
 ('Bob Admin', 'bob.admin@example.com', 'password456');
 
 -- "User"
-INSERT INTO "User" (name, email) VALUES
+INSERT INTO users (name, email) VALUES
 ('John Doe', 'john.doe@gmail.com'),
 ('Jane Smith', 'jane.smith@hotmail.com'),
 ('Mike Johnson', 'mike.johnson@yahoo.com');

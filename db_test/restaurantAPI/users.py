@@ -35,7 +35,7 @@ users_blueprint = Blueprint('users', __name__)
     }
 })
 def get_users():
-    users = query_db("SELECT * FROM User")
+    users = query_db("SELECT * FROM users")
     return jsonify(users)
 
 
@@ -78,7 +78,7 @@ def add_user():
     if not name or not email:
         return jsonify({"error": "Name and email are required"}), 400
 
-    insert_db('INSERT INTO User (name, email) VALUES (?, ?)',
+    insert_db('INSERT INTO users (name, email) VALUES (%s, %s)',
               args=(name, email))
     return jsonify({"message": "User added successfully"}), 200
 
@@ -127,7 +127,7 @@ def update_user(user_id):
     if not name or not email:
         return jsonify({"error": "Name and email are required"}), 400
 
-    insert_db("""UPDATE User SET name = ?, email = ? WHERE id = ?""",
+    insert_db("""UPDATE users SET name = %s, email = %s WHERE id = %s""",
               args=(name, email, user_id))
     return jsonify({"message": "User updated successfully"}), 200
 
@@ -149,7 +149,7 @@ def update_user(user_id):
 })
 def delete_user(user_id):
     try:
-        insert_db('DELETE FROM User WHERE id = ?', args=(user_id,))
+        insert_db('DELETE FROM users WHERE id = %s', args=(user_id,))
         return jsonify({"message": "User deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

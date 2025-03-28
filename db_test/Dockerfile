@@ -1,5 +1,5 @@
 # Use the official Python image
-FROM python:3.11
+FROM python:3.8-alpine
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 8000
 
 # Start the application with Gunicorn
-CMD ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:8000", "app:app"]
+CMD ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:8000", "app:app", "--log-level", "debug", "--error-logfile", "-", "--access-logfile", "-"]

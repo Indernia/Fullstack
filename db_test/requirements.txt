@@ -2,3 +2,6 @@ flask
 flask-cors
 flasgger
 gunicorn
+psycopg2-binary
+Flask-Bcrypt 
+Flask-JWT-Extended

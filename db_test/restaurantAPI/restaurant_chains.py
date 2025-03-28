@@ -34,6 +34,6 @@ restaurant_chains_blueprint = Blueprint('restaurant_chains', __name__)
     }
 })
 def get_restaurant_chains():
-    chains = query_db('SELECT * FROM RestaurantChain')
+    chains = query_db('SELECT * FROM restaurantchain')
 
     return jsonify(chains)

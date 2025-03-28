@@ -41,7 +41,7 @@ menu_sections_blueprint = Blueprint('menu_sections', __name__)
             }
         ]})
 def get_menu_section(sectionID):
-    request_data = query_db("SELECT * FROM MenuSection WHERE id = ?", args=(sectionID,))
+    request_data = query_db("SELECT * FROM menusection WHERE id = %s", args=(sectionID,))
     return jsonify(request_data)
 
 
@@ -79,7 +79,7 @@ def add_menu_section():
     menuID = data.get("menuID")
     name = data.get("name")
 
-    insert_db('INSERT INTO MenuSection (menuID, name) VALUES (?, ?)', args=(menuID, name))
+    insert_db('INSERT INTO menusection (menuID, name) VALUES (%s, %s)', args=(menuID, name))
     return jsonify({"message": "Menu section added successfully"}), 200
 
 
@@ -98,7 +98,7 @@ def add_menu_section():
     ]
 })
 def get_menu_sections_by_menu(menuID):
-    request_data = query_db("SELECT * FROM MenuSection WHERE menuID = ?", args=(menuID,))
+    request_data = query_db("SELECT * FROM menusection WHERE menuID = %s", args=(menuID,))
     return jsonify(request_data)
 
 @menu_sections_blueprint.route('/menuSections/<sectionID>/update', methods=["PUT"])
@@ -144,7 +144,7 @@ def update_menu_section(sectionID):
     if not name or not menuID:
         return jsonify({"error": "Name and menuID are required"}), 400
 
-    insert_db("""UPDATE MenuSection SET name = ?, menuID = ? WHERE id = ?""",
+    insert_db("""UPDATE menusection SET name = %s, menuID = %s WHERE id = %s""",
               args=(name, menuID, sectionID))
     return jsonify({"message": "Menu Section updated successfully"}), 200
 
@@ -166,7 +166,7 @@ def update_menu_section(sectionID):
 })
 def delete_menu_section(sectionID):
     try:
-        insert_db('DELETE FROM MenuSection WHERE id = ?', args=(sectionID,))
+        insert_db('DELETE FROM menusection WHERE id = %s', args=(sectionID,))
         return jsonify({"message": "Menu Section deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

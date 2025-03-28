@@ -1,36 +1,52 @@
-import sqlite3
+import psycopg2
+from psycopg2 import extras
 from flask import g
+import os
 
-DATABASE = 'database.db'
+# Get the database URL from the environment variable
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL", "postgresql://myuser:mypassword@localhost:5432/mydatabase")
 
 
 def get_db():
+    """Opens a new database connection if there is none yet for the current application context."""
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
+        db = g._database = psycopg2.connect(DATABASE_URL)
     return db
 
 
 def query_db(query, args=(), one=False):
+    """
+    Executes a query and returns the results.
+    """
     con = get_db()
-    con.row_factory = sqlite3.Row
-    cur = con.execute(query, args)
-    rv = cur.fetchall()
+    # Enable dict results
+    cur = con.cursor(cursor_factory=extras.RealDictCursor)
+    cur.execute(query, args)
+    result = cur.fetchall()
     cur.close()
-    result = [dict(row) for row in rv]
 
+    # Return one result or the full result list
     return result[0] if one and result else result
 
 
-def insert_db(query, args=()):
+def insert_db(query, args=()) -> int:
+    """Inserts data into the database.
+    Returns the ID of the inserted row."""
     con = get_db()
-    cur = con.execute(query, args)
+    cur = con.cursor()
+    cur.execute(query, args)
+    result = None
+    if cur.description is not None:
+        result = cur.fetchone()[0]
     con.commit()
     cur.close()
+    return result
 
 
-# @app.teardown_appcontext
 def close_connection(exception):
+    """Closes the database connection when the application context ends."""
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
