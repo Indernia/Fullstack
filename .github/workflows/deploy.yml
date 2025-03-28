@@ -27,7 +27,19 @@ jobs:
           docker build -t ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest -f db_test/Dockerfile db_test
           docker push ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest
 
-      # Step 4: SSH into server and deploy the new container
+      # Step 4: Copy docker-compose.yml and db-init-scripts to server
+      - name: Copy configuration files
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.DOCKER_PORT }}
+          source: "docker-compose.yml,db-init-scripts"
+          target: "~/opt/app"
+          strip_components: 0
+
+      # Step 5: SSH into server and deploy using docker-compose
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
         with:
@@ -37,17 +49,19 @@ jobs:
           port: ${{ secrets.DOCKER_PORT }}
           debug: true
           script: |
+            cd ~/opt/app
+            
+            # Pull the latest image
             docker pull ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest
-            docker stop myapp || true
-            docker rm myapp || true
-            docker stop postgres_db || true
-            docker rm postgres_db || true
-            docker run -d --name postgres_db -p 5432:5432 \
-              -e POSTGRES_USER=myuser \
-              -e POSTGRES_PASSWORD=mypassword \
-              -e POSTGRES_DB=mydatabase \
-              --restart always \
-              postgres:latest
-            docker run -d --name myapp -p 8000:8000 --restart always \
-              -e DATABASE_URL=postgresql://myuser:mypassword@postgres_db:5432/mydatabase \
-              ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest
+            
+            # Create the network if it doesn't exist
+            docker network create mynetwork || true
+            
+            # Stop and remove existing containers
+            docker-compose down || true
+            
+            # Start the services using docker-compose
+            docker-compose up -d
+            
+            # Verify the containers are running
+            docker ps
