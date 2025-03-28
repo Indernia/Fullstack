@@ -44,4 +44,14 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest
             docker stop myapp || true
             docker rm myapp || true
-            docker run -d --name myapp -p 8000:8000 --restart always ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest
+            docker stop postgres_db || true
+            docker rm postgres_db || true
+            docker run -d --name postgres_db -p 5432:5432 \
+              -e POSTGRES_USER=myuser \
+              -e POSTGRES_PASSWORD=mypassword \
+              -e POSTGRES_DB=mydatabase \
+              --restart always \
+              postgres:latest
+            docker run -d --name myapp -p 8000:8000 --restart always \
+              -e DATABASE_URL=postgresql://myuser:mypassword@postgres_db:5432/mydatabase \
+              ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest
