@@ -12,6 +12,7 @@ def get_db():
     """Opens a new database connection if there is none yet for the current application context."""
     db = getattr(g, '_database', None)
     if db is None:
+        print(DATABASE_URL)
         db = g._database = psycopg2.connect(DATABASE_URL)
     return db
 
