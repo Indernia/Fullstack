@@ -18,7 +18,7 @@ services:
       - ./db-init-scripts:/docker-entrypoint-initdb.d
 
   myapp:
-    build: ./db_test
+    image: fullstackrestaurant/backend-flask-app:latest
     container_name: myapp
     restart: always
     depends_on:
