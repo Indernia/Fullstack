@@ -192,7 +192,7 @@ def add_order():
     return jsonify({"message": "Order created"}), 201
 
 
-@orders_blueprint.route('/orders/markComplete/<orderID>/', methods=["POST"])
+@orders_blueprint.route('/orders/markComplete/<orderID>/', methods=["PUT"])
 @swag_from({
     'tags': ['Orders'],
     'parameters': [{
