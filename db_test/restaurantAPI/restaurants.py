@@ -140,13 +140,14 @@ def get_all_restaurants():
         }
     }]})
 def add_restaurant():
+    ownerID = get_jwt_identity()["id"]
     data = request.get_json()
     name = data.get("name")
     chainID = data.get("chainID")
     latitude = data.get("latitude")
     longitude = data.get("longitude")
 
-    insert_db('INSERT INTO restaurant (name, chainID, latitude, longitude) VALUES (%s, %s, %s, %s)',
+    insert_db('INSERT INTO restaurant (name, chainID, latitude, longitude, ownerID) VALUES (%s, %s, %s, %s)',
               args=(name, chainID, latitude, longitude))
     return jsonify({"message": "Restaurant added successfully"}), 200
 
