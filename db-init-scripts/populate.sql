@@ -20,16 +20,11 @@ INSERT INTO Tag (tagType, tagValue, tagDescription) VALUES
 ('Diet', 'Gluten-Free', 'Indicates the item is gluten-free'),
 ('Allergy', 'Peanuts', 'Contains peanuts');
 
--- RestaurantChain
-INSERT INTO RestaurantChain (name, ownerID) VALUES
-('Delish Eateries', 1), 
-('Quick Bites', 2);
-
 -- Restaurant
-INSERT INTO Restaurant (name, chainID, latitude, longitude) VALUES
-('Delish Downtown', 1, 40.7128, -74.0060),
-('Delish Uptown', 1, 40.7831, -73.9712),
-('Quick Bites - Airport', 2, 40.6420, -73.7889);
+INSERT INTO Restaurant (name, chainID, latitude, longitude, ownerID) VALUES
+('Delish Downtown', 1, 40.7128, -74.0060, 1),
+('Delish Uptown', 1, 40.7831, -73.9712, 1),
+('Quick Bites - Airport', 2, 40.6420, -73.7889, 2);
 
 -- Rating
 INSERT INTO Rating (rating, restaurantID, text) VALUES
