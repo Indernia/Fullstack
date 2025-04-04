@@ -41,6 +41,10 @@ menu_items_blueprint = Blueprint('menu_items', __name__)
                     'type': {
                         'type': 'string',
                         'description': 'The type of the menu item'
+                    },
+                    'tags': {
+                        'type': 'object',
+                        'description': 'A list of tags for the given item'
                     }
                 }
             }
