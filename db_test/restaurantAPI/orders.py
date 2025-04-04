@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from api_keys import validate_api_key
+from .api_keys import validate_api_key
 
 orders_blueprint = Blueprint('orders', __name__)
 

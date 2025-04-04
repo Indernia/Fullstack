@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from database import query_db, insert_db
 from flasgger import swag_from
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required
 import secrets
 from extensions import bcrypt
 
@@ -17,7 +17,7 @@ def generate_api_key():
 def add_api_key():
     data = request.get_json()
     restaurantID = data.get("restaurantID")
-    apikey = generate_api_key
+    apikey = generate_api_key()
 
     hashed_key = bcrypt.generate_password_hash(apikey).decode('utf-8')
 
@@ -28,8 +28,9 @@ def add_api_key():
     return jsonify({"message": apikey}), 201
 
 def validate_api_key(apikey, restaurantID):
-    keys = query_db("SELECT * FROM apikeys WHERE restaurantID = %s", args=(restaurantID))
+    keys = query_db("SELECT * FROM apikeys WHERE restaurantID = %s", args=(restaurantID,))
     for key in keys:
         if bcrypt.check_password_hash(key['apikey'], apikey):
             return True
+    return False
         
