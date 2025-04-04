@@ -122,6 +122,7 @@ CREATE TABLE orders (
     orderTime TIMESTAMP NOT NULL,
     orderCost REAL NOT NULL,
     orderComplete BOOLEAN NOT NULL,
+    comments TEXT,
     FOREIGN KEY (userID) REFERENCES users(id),
     FOREIGN KEY (tableID) REFERENCES RestaurantTable(id),
     FOREIGN KEY (restaurantID) REFERENCES Restaurant(id)

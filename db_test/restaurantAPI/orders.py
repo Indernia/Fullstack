@@ -147,6 +147,10 @@ def get_order(orderId):
                     'type': 'string',
                     'description': 'The time the order was placed'
                 },
+                'comments': {
+                    'type': 'string',
+                    'description': 'any comments there may be for the order, can be blank'
+                },
                 'menuItems': {
                     'type': 'array',
                     'items': {
@@ -172,6 +176,7 @@ def add_order():
     userId = request_data['userId']
     orderTable = request_data['orderTable']
     menuItems = request_data['menuItems']
+    comments = request_data['comments']
     orderTotal = 0
     for item in menuItems:
         item_data = query_db("SELECT price FROM menuitem WHERE id = %s",
@@ -180,10 +185,10 @@ def add_order():
         print(orderTotal)
 
     orderID = insert_db("""INSERT INTO orders
-                        (restaurantId, userID, tableID, orderCost, orderComplete, orderTime)
-                        VALUES (%s, %s, %s, %s, False, now())
+                        (restaurantId, userID, tableID, orderCost, orderComplete, orderTime, comments)
+                        VALUES (%s, %s, %s, %s, False, now(), %s)
                         RETURNING id""",
-                        args=(restaurantId, userId, orderTable, orderTotal))
+                        args=(restaurantId, userId, orderTable, orderTotal, comments))
 
     for item in menuItems:
         insert_db("INSERT INTO orderincludesmenuitem (orderID, menuItemID) VALUES (%s, %s)",
