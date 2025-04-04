@@ -63,7 +63,7 @@ def get_orders(restaurantID):
                                 FROM restaurant R
                                     WHERE R.id = %s
                                 LIMIT 1
-                                """, args=(restaurantId), one=True)
+                                """, args=(restaurantID), one=True)
    
     if userid != restaurantsForUser["ownerid"]:
             print(restaurantsForUser)
@@ -81,7 +81,7 @@ def get_orders(restaurantID):
                         AND orderComplete = false
                         GROUP BY o.id
                         """
-                            , args=(restaurantId))
+                            , args=(restaurantID))
     return jsonify(request_data)
 
 
