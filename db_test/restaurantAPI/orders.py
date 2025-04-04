@@ -55,33 +55,34 @@ def get_orders(restaurantId):
     if not apikey:
         return jsonify({"error": "Missing API key"}), 404
 
-    if validate_api_key():
+    if not validate_api_key():
+        return
 
-        restaurantsForUser = query_db("""
-                                    SELECT R.ownerid
-                                    FROM restaurant R
-                                      WHERE R.id = %s
-                                    LIMIT 1
-                                    """, args=(restaurantId), one=True)
-    
-        if userid != restaurantsForUser["ownerid"]:
-                print(restaurantsForUser)
-                print(userid)
-                return jsonify({"message": "you do not have access to this restaurant"}), 401
+    restaurantsForUser = query_db("""
+                            SELECT R.ownerid
+                                FROM restaurant R
+                                    WHERE R.id = %s
+                                LIMIT 1
+                                """, args=(restaurantId), one=True)
+   
+    if userid != restaurantsForUser["ownerid"]:
+            print(restaurantsForUser)
+            print(userid)
+            return jsonify({"message": "you do not have access to this restaurant"}), 401
 
-        request_data = query_db("""
-                            SELECT
-                            o.*,
-                            json_agg(mi) AS menuItems
-                            FROM orders o
-                            LEFT JOIN orderincludesmenuitem oim ON oim.orderID = o.id
-                            LEFT JOIN menuitem mi ON oim.menuItemID = mi.id
-                            WHERE o.restaurantID = %s
-                            AND orderComplete = false
-                            GROUP BY o.id
-                            """
-                                , args=(restaurantId))
-        return jsonify(request_data)
+    request_data = query_db("""
+                        SELECT
+                        o.*,
+                        json_agg(mi) AS menuItems
+                        FROM orders o
+                        LEFT JOIN orderincludesmenuitem oim ON oim.orderID = o.id
+                        LEFT JOIN menuitem mi ON oim.menuItemID = mi.id
+                        WHERE o.restaurantID = %s
+                        AND orderComplete = false
+                        GROUP BY o.id
+                        """
+                            , args=(restaurantId))
+    return jsonify(request_data)
 
 
 @orders_blueprint.route('/orders/byorderId/<orderId>/', methods=["GET"])
