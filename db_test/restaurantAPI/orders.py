@@ -55,18 +55,28 @@ def get_orders(restaurantId):
     print(userid)
 
     restaurantsForUser = query_db("""
-                                  SELECT C.ownerid
+                                  SELECT R.ownerid
                                   FROM restaurant R
-                                  LEFT JOIN restaurantchain C ON R.chainid = C.id
                                   WHERE R.id = %s
                                   LIMIT 1
                                   """, args=(restaurantId), one=True)
+
     if userid != restaurantsForUser["ownerid"]:
         print(restaurantsForUser)
         print(userid)
         return jsonify({"message": "you do not have access to this restaurant"}), 401
 
-    request_data = query_db("SELECT * FROM orders WHERE restaurantId = %s AND orderComplete = false"
+    request_data = query_db("""
+                            SELECT
+                            o.*,
+                            json_agg(mi)
+                            FROM orders o
+                            LEFT JOIN orderincludesmenuitem oim ON oim.orderID = o.id
+                            LEFT JOIN menuitem mi ON oim.menuItemID = mi.id
+                            WHERE o.restaurantID = %s
+                            AND orderComplete = false
+                            GROUP BY o.id
+                            """
                             , args=(restaurantId))
     return jsonify(request_data)
 
@@ -164,7 +174,7 @@ def add_order():
     userId = request_data['userId']
     orderTable = request_data['orderTable']
     menuItems = request_data['menuItems']
-    comments = request_data['comments']
+    comments = request_data.get('comments', "no comments")
     orderTotal = 0
     for item in menuItems:
         item_data = query_db("SELECT price FROM menuitem WHERE id = %s",
