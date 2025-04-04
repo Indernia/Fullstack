@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .api_keys import validate_api_key
+from api_keys import validate_api_key
 
 orders_blueprint = Blueprint('orders', __name__)
 
@@ -47,7 +47,7 @@ orders_blueprint = Blueprint('orders', __name__)
             'description': 'Orders not found'
         }},
     })
-def get_orders(restaurantId):
+def get_orders(restaurantID):
     data = request.get_json
     apikey = data.get("apikey")
     userid = get_jwt_identity()["id"]
@@ -55,9 +55,9 @@ def get_orders(restaurantId):
     if not apikey:
         return jsonify({"error": "Missing API key"}), 404
 
-    if not validate_api_key():
-        return
-
+    if not validate_api_key(apikey, restaurantID):
+        return jsonify({"error": "Invalid API key or restaurant ID"}), 401
+    
     restaurantsForUser = query_db("""
                             SELECT R.ownerid
                                 FROM restaurant R
