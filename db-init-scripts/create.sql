@@ -34,7 +34,7 @@ CREATE TABLE Restaurant (
 
 -- 5) AdminKey
 CREATE TABLE apikeys (
-    jwtkey TEXT NOT NULL PRIMARY KEY,
+    apikey TEXT NOT NULL PRIMARY KEY,
     restaurantID INT NOT NULL,
     FOREIGN KEY (restaurantID) REFERENCES restaurant(id) 
 );

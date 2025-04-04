@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
-
+from api_keys import validate_api_key
 
 orders_blueprint = Blueprint('orders', __name__)
 
@@ -48,25 +48,28 @@ orders_blueprint = Blueprint('orders', __name__)
         }},
     })
 def get_orders(restaurantId):
-    token = request.headers.get('Authorization')
-
-    print(token)
+    data = request.get_json
+    apikey = data.get("apikey")
     userid = get_jwt_identity()["id"]
-    print(userid)
 
-    restaurantsForUser = query_db("""
-                                  SELECT R.ownerid
-                                  FROM restaurant R
-                                  WHERE R.id = %s
-                                  LIMIT 1
-                                  """, args=(restaurantId), one=True)
+    if not apikey:
+        return jsonify({"error": "Missing API key"}), 404
 
-    if userid != restaurantsForUser["ownerid"]:
-        print(restaurantsForUser)
-        print(userid)
-        return jsonify({"message": "you do not have access to this restaurant"}), 401
+    if validate_api_key():
 
-    request_data = query_db("""
+        restaurantsForUser = query_db("""
+                                    SELECT R.ownerid
+                                    FROM restaurant R
+                                      WHERE R.id = %s
+                                    LIMIT 1
+                                    """, args=(restaurantId), one=True)
+    
+        if userid != restaurantsForUser["ownerid"]:
+                print(restaurantsForUser)
+                print(userid)
+                return jsonify({"message": "you do not have access to this restaurant"}), 401
+
+        request_data = query_db("""
                             SELECT
                             o.*,
                             json_agg(mi) AS menuItems
@@ -77,8 +80,8 @@ def get_orders(restaurantId):
                             AND orderComplete = false
                             GROUP BY o.id
                             """
-                            , args=(restaurantId))
-    return jsonify(request_data)
+                                , args=(restaurantId))
+        return jsonify(request_data)
 
 
 @orders_blueprint.route('/orders/byorderId/<orderId>/', methods=["GET"])

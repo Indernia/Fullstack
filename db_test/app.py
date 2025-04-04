@@ -2,7 +2,7 @@ from flask import Flask
 from restaurantAPI import restaurant_api_blueprint
 from flasgger import Swagger
 from flask_cors import CORS
-from extensions import bcrypt, jwt
+from extensions import bcrypt, jwt, mgr
 
 app = Flask(__name__)
 
