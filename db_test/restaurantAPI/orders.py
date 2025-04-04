@@ -249,7 +249,12 @@ def mark_order_complete(orderID):
         }},
     })
 def get_order_items(orderId):
-    request_data = query_db("SELECT menuItemID FROM orderincludesmenuitem WHERE orderID = %s",
+    request_data = query_db("""
+                            SELECT mi.*
+                            FROM orderincludesmenuitem oim
+                            LEFT JOIN menuitem mi ON oim.orderID = mi.id
+                            WHERE orderID = %s
+                            """,
                             args=(orderId,))
     return jsonify(request_data)
 
