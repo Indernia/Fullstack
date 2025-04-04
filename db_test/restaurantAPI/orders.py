@@ -7,7 +7,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 orders_blueprint = Blueprint('orders', __name__)
 
 
-@orders_blueprint.route('/orders/<restaurantId>/', methods=["GET"])
+@orders_blueprint.route('/orders/byrestaurant/<restaurantId>/', methods=["GET"])
 @jwt_required()
 @swag_from({
     'tags': ['Orders'],
@@ -32,10 +32,6 @@ orders_blueprint = Blueprint('orders', __name__)
                     'orderTable': {
                         'type': 'integer',
                         'description': 'The table number the order is for'
-                    },
-                    'orderTime': {
-                        'type': 'string',
-                        'description': 'The time the order was placed'
                     },
                     'orderTotal': {
                         'type': 'number',
@@ -75,7 +71,7 @@ def get_orders(restaurantId):
     return jsonify(request_data)
 
 
-@orders_blueprint.route('/orders/<orderId>/', methods=["GET"])
+@orders_blueprint.route('/orders/byorderId/<orderId>/', methods=["GET"])
 @swag_from({
     'tags': ['Orders'],
     'responses': {
@@ -100,14 +96,6 @@ def get_orders(restaurantId):
                         'type': 'integer',
                         'description': 'The table number the order is for'
                     },
-                    'orderTime': {
-                        'type': 'string',
-                        'description': 'The time the order was placed'
-                    },
-                    'orderTotal': {
-                        'type': 'number',
-                        'description': 'The total cost of the order'
-                    }
                 }
             }
         },
