@@ -12,6 +12,7 @@ api_keys_blueprint = Blueprint('api_keys', __name__)
 def generate_api_key():
     return secrets.token_urlsafe(32)
 
+
 @api_keys_blueprint.route('/apiKeys/create', methods=["POST"])
 @jwt_required
 def add_api_key():
@@ -33,4 +34,3 @@ def validate_api_key(apikey, restaurantID):
         if bcrypt.check_password_hash(key['apikey'], apikey):
             return True
     return False
-        
