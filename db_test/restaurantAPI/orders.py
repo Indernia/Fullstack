@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
-
+from .api_keys import validate_api_key
 
 orders_blueprint = Blueprint('orders', __name__)
 
@@ -47,27 +47,41 @@ orders_blueprint = Blueprint('orders', __name__)
             'description': 'Orders not found'
         }},
     })
-def get_orders(restaurantId):
-    token = request.headers.get('Authorization')
-
-    print(token)
+def get_orders(restaurantID):
+    data = request.get_json
+    apikey = data.get("apikey")
     userid = get_jwt_identity()["id"]
-    print(userid)
 
+    if not apikey:
+        return jsonify({"error": "Missing API key"}), 404
+
+    if not validate_api_key(apikey, restaurantID):
+        return jsonify({"error": "Invalid API key or restaurant ID"}), 401
+    
     restaurantsForUser = query_db("""
-                                  SELECT C.ownerid
-                                  FROM restaurant R
-                                  LEFT JOIN restaurantchain C ON R.chainid = C.id
-                                  WHERE R.id = %s
-                                  LIMIT 1
-                                  """, args=(restaurantId), one=True)
+                            SELECT R.ownerid
+                                FROM restaurant R
+                                    WHERE R.id = %s
+                                LIMIT 1
+                                """, args=(restaurantID), one=True)
+   
     if userid != restaurantsForUser["ownerid"]:
-        print(restaurantsForUser)
-        print(userid)
-        return jsonify({"message": "you do not have access to this restaurant"}), 401
+            print(restaurantsForUser)
+            print(userid)
+            return jsonify({"message": "you do not have access to this restaurant"}), 401
 
-    request_data = query_db("SELECT * FROM orders WHERE restaurantId = %s AND orderComplete = false"
-                            , args=(restaurantId))
+    request_data = query_db("""
+                        SELECT
+                        o.*,
+                        json_agg(mi) AS menuItems
+                        FROM orders o
+                        LEFT JOIN orderincludesmenuitem oim ON oim.orderID = o.id
+                        LEFT JOIN menuitem mi ON oim.menuItemID = mi.id
+                        WHERE o.restaurantID = %s
+                        AND orderComplete = false
+                        GROUP BY o.id
+                        """
+                            , args=(restaurantID))
     return jsonify(request_data)
 
 
@@ -135,6 +149,10 @@ def get_order(orderId):
                     'type': 'string',
                     'description': 'The time the order was placed'
                 },
+                'comments': {
+                    'type': 'string',
+                    'description': 'any comments there may be for the order, can be blank'
+                },
                 'menuItems': {
                     'type': 'array',
                     'items': {
@@ -160,6 +178,7 @@ def add_order():
     userId = request_data['userId']
     orderTable = request_data['orderTable']
     menuItems = request_data['menuItems']
+    comments = request_data.get('comments', "no comments")
     orderTotal = 0
     for item in menuItems:
         item_data = query_db("SELECT price FROM menuitem WHERE id = %s",
@@ -168,10 +187,10 @@ def add_order():
         print(orderTotal)
 
     orderID = insert_db("""INSERT INTO orders
-                        (restaurantId, userID, tableID, orderCost, orderComplete, orderTime)
-                        VALUES (%s, %s, %s, %s, False, now())
+                        (restaurantId, userID, tableID, orderCost, orderComplete, orderTime, comments)
+                        VALUES (%s, %s, %s, %s, False, now(), %s)
                         RETURNING id""",
-                        args=(restaurantId, userId, orderTable, orderTotal))
+                        args=(restaurantId, userId, orderTable, orderTotal, comments))
 
     for item in menuItems:
         insert_db("INSERT INTO orderincludesmenuitem (orderID, menuItemID) VALUES (%s, %s)",
@@ -180,7 +199,7 @@ def add_order():
     return jsonify({"message": "Order created"}), 201
 
 
-@orders_blueprint.route('/orders/markComplete/<orderID>/', methods=["POST"])
+@orders_blueprint.route('/orders/markComplete/<orderID>/', methods=["PUT"])
 @swag_from({
     'tags': ['Orders'],
     'parameters': [{
@@ -232,7 +251,12 @@ def mark_order_complete(orderID):
         }},
     })
 def get_order_items(orderId):
-    request_data = query_db("SELECT menuItemID FROM orderincludesmenuitem WHERE orderID = %s",
+    request_data = query_db("""
+                            SELECT mi.*
+                            FROM orderincludesmenuitem oim
+                            LEFT JOIN menuitem mi ON oim.orderID = mi.id
+                            WHERE orderID = %s
+                            """,
                             args=(orderId,))
     return jsonify(request_data)
 

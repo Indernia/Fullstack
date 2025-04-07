@@ -21,22 +21,22 @@ CREATE TABLE Tag (
     tagDescription TEXT
 );
 
--- 4) RestaurantChain
-CREATE TABLE RestaurantChain (
-    id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
-    name TEXT NOT NULL,
-    ownerID INTEGER NOT NULL,
-    FOREIGN KEY (ownerID) REFERENCES AdminUser(id)
-);
-
--- 5) Restaurant
+-- 4) Restaurant
 CREATE TABLE Restaurant (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
+    ownerID INTEGER NOT NULL,
     name TEXT NOT NULL,
     chainID INTEGER NOT NULL,
     latitude REAL,
     longitude REAL,
-    FOREIGN KEY (chainID) REFERENCES RestaurantChain(id)
+    FOREIGN KEY (ownerID) REFERENCES AdminUser(id)
+);
+
+-- 5) AdminKey
+CREATE TABLE apikeys (
+    apikey TEXT NOT NULL PRIMARY KEY,
+    restaurantID INT NOT NULL,
+    FOREIGN KEY (restaurantID) REFERENCES restaurant(id) 
 );
 
 -- 6) Rating
@@ -122,6 +122,7 @@ CREATE TABLE orders (
     orderTime TIMESTAMP NOT NULL,
     orderCost REAL NOT NULL,
     orderComplete BOOLEAN NOT NULL,
+    comments TEXT,
     FOREIGN KEY (userID) REFERENCES users(id),
     FOREIGN KEY (tableID) REFERENCES RestaurantTable(id),
     FOREIGN KEY (restaurantID) REFERENCES Restaurant(id)

@@ -8,6 +8,7 @@ from .restaurant_chains import restaurant_chains_blueprint
 from .ratings import ratings_blueprint
 from .admin_users import admin_users_blueprint
 from .orders import orders_blueprint
+from .api_keys import api_keys_blueprint
 
 # Create a blueprint for the entire API to register it in `app.py`
 restaurant_api_blueprint = Blueprint('restaurantAPI', __name__)
@@ -21,4 +22,5 @@ restaurant_api_blueprint.register_blueprint(menu_items_blueprint)
 restaurant_api_blueprint.register_blueprint(restaurant_chains_blueprint)
 restaurant_api_blueprint.register_blueprint(ratings_blueprint)
 restaurant_api_blueprint.register_blueprint(admin_users_blueprint)
+restaurant_api_blueprint.register_blueprint(api_keys_blueprint)
 restaurant_api_blueprint.register_blueprint(orders_blueprint)

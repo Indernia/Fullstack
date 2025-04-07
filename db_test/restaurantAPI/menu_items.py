@@ -41,6 +41,10 @@ menu_items_blueprint = Blueprint('menu_items', __name__)
                     'type': {
                         'type': 'string',
                         'description': 'The type of the menu item'
+                    },
+                    'tags': {
+                        'type': 'object',
+                        'description': 'A list of tags for the given item'
                     }
                 }
             }
@@ -57,7 +61,16 @@ menu_items_blueprint = Blueprint('menu_items', __name__)
             }
         ]})
 def get_menu_item(itemID):
-    request_data = query_db("SELECT * FROM menuitem WHERE id = %s", args=(itemID,))
+    request_data = query_db("""SELECT mi.*,
+                            json_agg(t) AS tags
+                            FROM
+                            menuitem mi
+                            LEFT JOIN menuitemhastag mit on mi.id = mit.menuitemid
+                            LEFT JOIN tag t ON mit.tagid = t.id
+                            WHERE mi.id = %s
+                            GROUP BY mi.id
+                            """
+                            , args=(itemID,))
     return jsonify(request_data)
 
 
