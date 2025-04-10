@@ -47,7 +47,7 @@ orders_blueprint = Blueprint('orders', __name__)
             'description': 'Orders not found'
         }},
     })
-def get_orders(restaurantID):
+def get_orders(restaurantId):
     data = request.get_json
     apikey = data.get("apikey")
     userid = get_jwt_identity()["id"]
@@ -55,20 +55,20 @@ def get_orders(restaurantID):
     if not apikey:
         return jsonify({"error": "Missing API key"}), 404
 
-    if not validate_api_key(apikey, restaurantID):
+    if not validate_api_key(apikey, restaurantId):
         return jsonify({"error": "Invalid API key or restaurant ID"}), 401
-    
+
     restaurantsForUser = query_db("""
                             SELECT R.ownerid
                                 FROM restaurant R
                                     WHERE R.id = %s
                                 LIMIT 1
-                                """, args=(restaurantID), one=True)
-   
+                                """, args=(restaurantId), one=True)
+
     if userid != restaurantsForUser["ownerid"]:
-            print(restaurantsForUser)
-            print(userid)
-            return jsonify({"message": "you do not have access to this restaurant"}), 401
+        print(restaurantsForUser)
+        print(userid)
+        return jsonify({"message": "you do not have access to this restaurant"}), 401
 
     request_data = query_db("""
                         SELECT
@@ -81,7 +81,7 @@ def get_orders(restaurantID):
                         AND orderComplete = false
                         GROUP BY o.id
                         """
-                            , args=(restaurantID))
+                            , args=(restaurantId))
     return jsonify(request_data)
 
 
