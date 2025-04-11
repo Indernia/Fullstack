@@ -15,6 +15,22 @@ def generate_api_key():
 
 @api_keys_blueprint.route('/apiKeys/create', methods=["POST"])
 @jwt_required()
+@swag_from({
+    'tags': ['API Keys'],
+    'responses': {
+        201: {
+            'description': 'API key created successfully',
+            'examples': {
+                'application/json': {
+                    "message": "generated_api_key"
+                }
+            }
+        },
+        400: {
+            'description': 'Missing required fields'
+        }
+    }
+})
 def add_api_key():
     data = request.get_json()
     restaurantID = data.get("restaurantID")
