@@ -14,7 +14,7 @@ def generate_api_key():
 
 
 @api_keys_blueprint.route('/apiKeys/create', methods=["POST"])
-@jwt_required
+@jwt_required()
 def add_api_key():
     data = request.get_json()
     restaurantID = data.get("restaurantID")
@@ -27,6 +27,7 @@ def add_api_key():
 
     insert_db("INSERT INTO apikeys (apikey, restaurantID) VALUES (%s, %s)", args=(hashed_key, restaurantID))
     return jsonify({"message": apikey}), 201
+
 
 def validate_api_key(apikey, restaurantID):
     keys = query_db("SELECT * FROM apikeys WHERE restaurantID = %s", args=(restaurantID,))
