@@ -8,7 +8,6 @@ orders_blueprint = Blueprint('orders', __name__)
 
 
 @orders_blueprint.route('/orders/byrestaurant/<restaurantId>/', methods=["GET"])
-@jwt_required()
 @swag_from({
     'tags': ['Orders'],
     'responses': {
@@ -48,27 +47,13 @@ orders_blueprint = Blueprint('orders', __name__)
         }},
     })
 def get_orders(restaurantId):
-    data = request.get_json()
-    apikey = data.get("apikey")
-    userid = get_jwt_identity()["id"]
+    apikey = request.headers.get("authorization")
 
     if not apikey:
         return jsonify({"error": "Missing API key"}), 404
 
     if not validate_api_key(apikey, restaurantId):
         return jsonify({"error": "Invalid API key or restaurant ID"}), 401
-
-    restaurantsForUser = query_db("""
-                            SELECT R.ownerid
-                                FROM restaurant R
-                                    WHERE R.id = %s
-                                LIMIT 1
-                                """, args=(restaurantId), one=True)
-
-    if userid != restaurantsForUser["ownerid"]:
-        print(restaurantsForUser)
-        print(userid)
-        return jsonify({"message": "you do not have access to this restaurant"}), 401
 
     request_data = query_db("""
                         SELECT
