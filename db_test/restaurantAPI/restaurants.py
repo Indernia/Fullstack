@@ -143,12 +143,11 @@ def add_restaurant():
     ownerID = get_jwt_identity()["id"]
     data = request.get_json()
     name = data.get("name")
-    chainID = data.get("chainID")
     latitude = data.get("latitude")
     longitude = data.get("longitude")
 
     insert_db('INSERT INTO restaurant (name, chainID, latitude, longitude, ownerID) VALUES (%s, %s, %s, %s, %s)',
-              args=(name, chainID, latitude, longitude, ownerID))
+              args=(name, latitude, longitude, ownerID))
     return jsonify({"message": "Restaurant added successfully"}), 200
 
 
@@ -171,15 +170,14 @@ def add_restaurant():
 def update_restaurant(restaurant_id):
     data = request.get_json()
     name = data.get("name")
-    chain_id = data.get("chainID")
     latitude = data.get("latitude")
     longitude = data.get("longitude")
 
-    if not name or not chain_id or not latitude or not longitude:
+    if not name or not latitude or not longitude:
         return jsonify({"error": "Missing required fields"}), 400
 
     insert_db("UPDATE restaurant SET name = %s, chainID = %s, latitude = %s, longitude = %s WHERE id = %s", 
-              args=(name, chain_id, latitude, longitude, restaurant_id))
+              args=(name, latitude, longitude, restaurant_id))
     return jsonify({"message": "Restaurant updated successfully"}), 200
 
 
