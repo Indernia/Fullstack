@@ -48,7 +48,7 @@ orders_blueprint = Blueprint('orders', __name__)
         }},
     })
 def get_orders(restaurantId):
-    data = request.get_json
+    data = request.get_json()
     apikey = data.get("apikey")
     userid = get_jwt_identity()["id"]
 
