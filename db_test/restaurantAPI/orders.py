@@ -49,6 +49,8 @@ orders_blueprint = Blueprint('orders', __name__)
 def get_orders(restaurantId):
     apikey = request.headers.get("authorization").split(" ")[1]
 
+    print(apikey)
+    print(request.headers.get("authorization"))
     if not apikey:
         return jsonify({"error": "Missing API key"}), 404
 
