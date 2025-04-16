@@ -21,10 +21,10 @@ INSERT INTO Tag (tagType, tagValue, tagDescription) VALUES
 ('Allergy', 'Peanuts', 'Contains peanuts');
 
 -- Restaurant
-INSERT INTO Restaurant (name, chainID, latitude, longitude, ownerID) VALUES
-('Delish Downtown', 1, 40.7128, -74.0060, 1),
-('Delish Uptown', 1, 40.7831, -73.9712, 1),
-('Quick Bites - Airport', 2, 40.6420, -73.7889, 2);
+INSERT INTO Restaurant (name, latitude, longitude, ownerID) VALUES
+('Delish Downtown', 40.7128, -74.0060, 1),
+('Delish Uptown', 40.7831, -73.9712, 1),
+('Quick Bites - Airport', 40.6420, -73.7889, 2);
 
 -- Rating
 INSERT INTO Rating (rating, restaurantID, text) VALUES
