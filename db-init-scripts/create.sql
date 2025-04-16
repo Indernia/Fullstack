@@ -26,7 +26,6 @@ CREATE TABLE Restaurant (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     ownerID INTEGER NOT NULL,
     name TEXT NOT NULL,
-    chainID INTEGER NOT NULL,
     latitude REAL,
     longitude REAL,
     FOREIGN KEY (ownerID) REFERENCES AdminUser(id)

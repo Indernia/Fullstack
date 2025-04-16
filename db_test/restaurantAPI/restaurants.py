@@ -25,10 +25,6 @@ restaurants_blueprint = Blueprint('restaurants', __name__)
                         'type': 'string',
                         'description': 'The name of the restaurant'
                     },
-                    'chainID': {
-                        'type': 'integer',
-                        'description': 'The ID of the chain this restaurant belongs to'
-                    },
                     'latitude': {
                         'type': 'number',
                         'description': 'The latitude of the restaurant'
@@ -74,10 +70,6 @@ def get_restaurant(restaurantID):
                             'type': 'string',
                             'description': 'The name of the restaurant'
                         },
-                        'chainID': {
-                            'type': 'integer',
-                            'description': 'The ID of the chain this restaurant belongs to'
-                        },
                         'latitude': {
                             'type': 'number',
                             'description': 'The latitude of the restaurant'
@@ -112,7 +104,7 @@ def get_all_restaurants():
             'description': 'Restaurant added successfully'
         },
         400: {
-            'description': 'Name, chainID, latitude, and longitude are required'
+            'description': 'Name, latitude, and longitude are required'
         }},
     'parameters': [{
         'name': 'body',
@@ -123,10 +115,6 @@ def get_all_restaurants():
                 'name': {
                     'type': 'string',
                     'description': 'The name of the restaurant'
-                },
-                'chainID': {
-                    'type': 'integer',
-                    'description': 'The ID of the chain this restaurant belongs to'
                 },
                 'latitude': {
                     'type': 'number',
@@ -146,7 +134,7 @@ def add_restaurant():
     latitude = data.get("latitude")
     longitude = data.get("longitude")
 
-    insert_db('INSERT INTO restaurant (name, chainID, latitude, longitude, ownerID) VALUES (%s, %s, %s, %s, %s)',
+    insert_db('INSERT INTO restaurant (name, latitude, longitude, ownerID) VALUES (%s, %s, %s, %s, %s)',
               args=(name, latitude, longitude, ownerID))
     return jsonify({"message": "Restaurant added successfully"}), 200
 
@@ -159,7 +147,7 @@ def add_restaurant():
             'description': 'Restaurant updated successfully'
         },
         400: {
-            'description': 'Name, chainID, latitude, and longitude are required'
+            'description': 'Name, latitude, and longitude are required'
         }},
     'parameters': [{
         'name': 'restaurant_id',
@@ -176,7 +164,7 @@ def update_restaurant(restaurant_id):
     if not name or not latitude or not longitude:
         return jsonify({"error": "Missing required fields"}), 400
 
-    insert_db("UPDATE restaurant SET name = %s, chainID = %s, latitude = %s, longitude = %s WHERE id = %s", 
+    insert_db("UPDATE restaurant SET name = %s, latitude = %s, longitude = %s WHERE id = %s", 
               args=(name, latitude, longitude, restaurant_id))
     return jsonify({"message": "Restaurant updated successfully"}), 200
 
@@ -224,10 +212,6 @@ def delete_restaurant(restaurantID):
                         'name': {
                             'type': 'string',
                             'description': 'The name of the restaurant'
-                        },
-                        'chainID': {
-                            'type': 'integer',
-                            'description': 'The ID of the chain this restaurant belongs to'
                         },
                         'latitude': {
                             'type': 'number',
