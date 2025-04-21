@@ -1,6 +1,15 @@
 # Use the official Python image
 FROM python:3.8-alpine
 
+# from perplexity to fix alpine issue with azure-storage-blob
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    libffi-dev \
+    openssl-dev \
+    python3-dev \
+    cargo
+
 # Set the working directory inside the container
 WORKDIR /app
 
