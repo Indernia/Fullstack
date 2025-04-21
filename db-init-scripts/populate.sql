@@ -20,11 +20,15 @@ INSERT INTO Tag (tagType, tagValue, tagDescription) VALUES
 ('Diet', 'Gluten-Free', 'Indicates the item is gluten-free'),
 ('Allergy', 'Peanuts', 'Contains peanuts');
 
+-- themes 
+INSERT INTO themes (name, primarycolor, background, text, text2, secondary, accent1, accent2) VALUES
+('Standard', '#FFFFFF','#F5F5F5','#000000','#FFFFFF','#f4845f','#4CAF50','FFDD99');
+
 -- Restaurant
-INSERT INTO Restaurant (name, chainID, latitude, longitude, ownerID) VALUES
-('Delish Downtown', 1, 40.7128, -74.0060, 1),
-('Delish Uptown', 1, 40.7831, -73.9712, 1),
-('Quick Bites - Airport', 2, 40.6420, -73.7889, 2);
+INSERT INTO Restaurant (name, latitude, longitude, ownerID) VALUES
+('Delish Downtown', 40.7128, -74.0060, 1),
+('Delish Uptown', 40.7831, -73.9712, 1),
+('Quick Bites - Airport', 40.6420, -73.7889, 2);
 
 -- Rating
 INSERT INTO Rating (rating, restaurantID, text) VALUES
@@ -76,3 +80,6 @@ INSERT INTO RestaurantTable (restaurantID, tableNumber, name) VALUES
 (1, 1, 'Window Seat'),
 (1, 2, 'Bar Seat'),
 (2, 5, 'Family Table');
+
+
+

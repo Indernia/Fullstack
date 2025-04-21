@@ -25,10 +25,6 @@ restaurants_blueprint = Blueprint('restaurants', __name__)
                         'type': 'string',
                         'description': 'The name of the restaurant'
                     },
-                    'chainID': {
-                        'type': 'integer',
-                        'description': 'The ID of the chain this restaurant belongs to'
-                    },
                     'latitude': {
                         'type': 'number',
                         'description': 'The latitude of the restaurant'
@@ -74,10 +70,6 @@ def get_restaurant(restaurantID):
                             'type': 'string',
                             'description': 'The name of the restaurant'
                         },
-                        'chainID': {
-                            'type': 'integer',
-                            'description': 'The ID of the chain this restaurant belongs to'
-                        },
                         'latitude': {
                             'type': 'number',
                             'description': 'The latitude of the restaurant'
@@ -112,7 +104,7 @@ def get_all_restaurants():
             'description': 'Restaurant added successfully'
         },
         400: {
-            'description': 'Name, chainID, latitude, and longitude are required'
+            'description': 'Name, latitude, and longitude are required'
         }},
     'parameters': [{
         'name': 'body',
@@ -123,10 +115,6 @@ def get_all_restaurants():
                 'name': {
                     'type': 'string',
                     'description': 'The name of the restaurant'
-                },
-                'chainID': {
-                    'type': 'integer',
-                    'description': 'The ID of the chain this restaurant belongs to'
                 },
                 'latitude': {
                     'type': 'number',
@@ -146,7 +134,7 @@ def add_restaurant():
     latitude = data.get("latitude")
     longitude = data.get("longitude")
 
-    insert_db('INSERT INTO restaurant (name, chainID, latitude, longitude, ownerID) VALUES (%s, %s, %s, %s, %s)',
+    insert_db('INSERT INTO restaurant (name, latitude, longitude, ownerID) VALUES (%s, %s, %s, %s)',
               args=(name, latitude, longitude, ownerID))
     return jsonify({"message": "Restaurant added successfully"}), 200
 
@@ -159,7 +147,7 @@ def add_restaurant():
             'description': 'Restaurant updated successfully'
         },
         400: {
-            'description': 'Name, chainID, latitude, and longitude are required'
+            'description': 'Name, latitude, and longitude are required'
         }},
     'parameters': [{
         'name': 'restaurant_id',
@@ -176,7 +164,7 @@ def update_restaurant(restaurant_id):
     if not name or not latitude or not longitude:
         return jsonify({"error": "Missing required fields"}), 400
 
-    insert_db("UPDATE restaurant SET name = %s, chainID = %s, latitude = %s, longitude = %s WHERE id = %s", 
+    insert_db("UPDATE restaurant SET name = %s, latitude = %s, longitude = %s WHERE id = %s", 
               args=(name, latitude, longitude, restaurant_id))
     return jsonify({"message": "Restaurant updated successfully"}), 200
 
@@ -224,10 +212,6 @@ def delete_restaurant(restaurantID):
                         'name': {
                             'type': 'string',
                             'description': 'The name of the restaurant'
-                        },
-                        'chainID': {
-                            'type': 'integer',
-                            'description': 'The ID of the chain this restaurant belongs to'
                         },
                         'latitude': {
                             'type': 'number',
@@ -315,7 +299,36 @@ def haversine(lat1, lon1, lat2, lon2):
     # apply formulae
     a = (pow(math.sin(dLat / 2), 2) +
          pow(math.sin(dLon / 2), 2) *
-             math.cos(lat1) * math.cos(lat2));
+         math.cos(lat1) * math.cos(lat2))
     rad = 6371
     c = 2 * math.asin(math.sqrt(a))
     return rad * c
+
+
+@restaurants_blueprint.route('/restaurants/theme/<themename>', methods=["GET"])
+@swag_from({
+        'description': "an endpoint for getting a specific theme",
+        'tag': ['Restaurants']
+    })
+def get_restaurant_theme(themename):
+    theme = query_db("SELECT * FROM themes WHERE name = %s", args=(themename,), one=True)
+    print(theme)
+    return jsonify(theme)
+
+
+@restaurants_blueprint.route('/restaurants/themes', methods=["GET"])
+@swag_from({
+        'description': "an endpoint for getting all themes",
+        'tag': ['Restaurants']
+    })
+def get_all_restaurant_themes():
+    names = query_db("SELECT name FROM themes")
+    return jsonify(names)
+
+
+
+
+
+
+
+
