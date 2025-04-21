@@ -8,11 +8,14 @@ import os
 account_name = os.getenv("AZURE_STORAGE_ACCOUNT")
 account_key = os.getenv("AZURE_STORAGE_ACCESS_KEY")
 container_name = "menu-items"  # Name of your Azure Blob Storage container
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
+
 
 # Generate SAS URL for image upload
 @app.route('api/SASURL', methods=['POST'])
+@jwt_required()
 def generate_sas_url():
-    file_name = request.json.get('fileName')  # Get the file name from the frontend
+    file_name = request.json.get("fileName")
 
     # Initialize the BlobServiceClient
     blob_service_client = BlobServiceClient(account_url=f"https://{account_name}.blob.core.windows.net", credential=account_key)
