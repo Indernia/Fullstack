@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from database import query_db, insert_db
-from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSASPermissions
+from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions
 from datetime import datetime, timedelta
 from app import app
 import os
@@ -10,7 +10,7 @@ sas_url_blueprint = Blueprint('sas_url', __name__)
 # Get your Azure credentials from environment variables
 account_name = os.getenv("AZURE_STORAGE_ACCOUNT")
 account_key = os.getenv("AZURE_STORAGE_ACCESS_KEY")
-container_name = "menu-items"  # Name of your Azure Blob Storage container
+container_name = "menu-items" 
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
