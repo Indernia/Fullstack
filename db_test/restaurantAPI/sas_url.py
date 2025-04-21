@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from database import query_db, insert_db
 from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime, timedelta
 import os
 
@@ -10,7 +11,6 @@ sas_url_blueprint = Blueprint('sas_url', __name__)
 account_name = os.getenv("AZURE_STORAGE_ACCOUNT")
 account_key = os.getenv("AZURE_STORAGE_ACCESS_KEY")
 container_name = "menu-items" 
-from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 # Generate SAS URL for image upload
@@ -20,7 +20,7 @@ def generate_sas_url():
     file_name = request.json.get("fileName")
     itemID = request.json.get("itemID")
 
-
+    print(account_key)
     if not file_name or not itemID:
         return jsonify({"error": "Missing 'fileName' or 'itemID' in the request."}), 400
 
