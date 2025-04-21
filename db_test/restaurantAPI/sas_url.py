@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify
 from database import query_db, insert_db
 from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions
 from datetime import datetime, timedelta
-from app import app
 import os
 
 sas_url_blueprint = Blueprint('sas_url', __name__)
@@ -15,7 +14,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 # Generate SAS URL for image upload
-@app.route('/SASURL', methods=['POST'])
+@sas_url_blueprint.route('/SASURL', methods=['POST'])
 @jwt_required()
 def generate_sas_url():
     file_name = request.json.get("fileName")
