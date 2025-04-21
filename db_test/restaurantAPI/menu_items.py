@@ -138,7 +138,7 @@ def get_menu_items_by_section(sectionID):
 def add_menu_item():
     data = request.get_json()
     sectionID = data.get("sectionID")
-    photoLink = data.get("photoLink")
+    photoLink = "https://jamnawmenu.blob.core.windows.net/menu-items/pexels-chanwalrus-958545.jpg"
     description = data.get("description")
     name = data.get("name")
     price = data.get("price")
