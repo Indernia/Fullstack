@@ -49,7 +49,7 @@ def generate_sas_url():
             account_name=account_name,
             container_name=container_name,
             blob_name=file_name,
-            permission=BlobSASPermissions(write=True, create=True),
+            permission=BlobSasPermissions(write=True, create=True),
             expiry=sas_expiration
         )
     except Exception as e:
