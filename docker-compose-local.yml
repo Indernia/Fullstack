@@ -25,6 +25,8 @@ services:
       - postgres
     environment:
       DATABASE_URL: postgresql://myuser:mypassword@postgres:5432/mydatabase
+      AZURE_STORAGE_ACCOUNT: ${AZURE_STORAGE_ACCOUNT}
+      AZURE_STORAGE_ACCESS_KEY: ${AZURE_STORAGE_ACCESS_KEY}
     ports:
       - "8000:8000"
     networks:
