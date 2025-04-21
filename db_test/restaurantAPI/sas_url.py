@@ -20,7 +20,6 @@ def generate_sas_url():
     file_name = request.json.get("fileName")
     itemID = request.json.get("itemID")
 
-    print(account_key)
     if not file_name or not itemID:
         return jsonify({"error": "Missing 'fileName' or 'itemID' in the request."}), 400
 
@@ -49,7 +48,8 @@ def generate_sas_url():
             container_name=container_name,
             blob_name=file_name,
             permission=BlobSasPermissions(write=True, create=True),
-            expiry=sas_expiration
+            expiry=sas_expiration,
+            account_key=account_key
         )
     except Exception as e:
         return jsonify({"error": f"Error generating SAS token: {str(e)}"}), 500
