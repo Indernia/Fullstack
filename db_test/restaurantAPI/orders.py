@@ -3,6 +3,8 @@ from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .api_keys import validate_api_key
+import stripe
+import os
 
 orders_blueprint = Blueprint('orders', __name__)
 
@@ -247,7 +249,56 @@ def get_order_items(orderId):
                             args=(orderId,))
     return jsonify(request_data)
 
+stripe.api_key = os.getenv('STRIPE_API_KEY')
 
+@orders_blueprint.route('/orders/<int:orderID>/create-payment-session', methods=['POST'])
+def create_checkout_session(orderID):
+    order = query_db("SELECT * FROM orders WHERE id = %s", args=(orderID,))
+    if not order:
+        return jsonify({"error": "Order not found"}), 404
+    
+    # Fetch associated menu items and their quantities
+    items = query_db("""
+        SELECT 
+            mi.id, 
+            mi.name, 
+            mi.description, 
+            mi.price, 
+            COUNT(*) AS quantity
+        FROM OrderIncludesMenuItem oim
+        JOIN MenuItem mi ON oim.menuItemID = mi.id
+        WHERE oim.orderID = %s
+        GROUP BY mi.id, mi.name, mi.description, mi.price
+    """, args=(orderID,))
+
+    # Build the line items for Stripe
+    line_items = []
+    for item in items:
+        line_items.append({
+            'price_data': {
+                'currency': 'usd',
+                'unit_amount': int(item['price'] * 100),  # Convert price to cents (best practice)
+                'product_data': {
+                    'name': item['name'],
+                    'description': item.get('description', '')
+                },
+            },
+            'quantity': item['quantity'],
+        })
+
+    # Create the Stripe Checkout session
+    session = stripe.checkout.Session.create(
+        payment_method_types=['card'],
+        line_items=line_items,
+        mode='payment',
+        success_url='http://130.225.170.52:10331/payment-success?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url='http://130.225.170.52:10331/payment-cancel',
+        metadata={
+            'orderID': str(orderID),
+        }
+    )
+
+    return jsonify({'checkout_url': session.url})
 
 
 
