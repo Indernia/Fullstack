@@ -3,6 +3,7 @@ from database import query_db, insert_db
 from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime, timedelta
+from flasgger import swag_from
 import os
 
 sas_url_blueprint = Blueprint('sas_url', __name__)
@@ -16,6 +17,67 @@ container_name = "menu-items"
 # Generate SAS URL for image upload
 @sas_url_blueprint.route('/SASURL', methods=['POST'])
 @jwt_required()
+@swag_from({
+    'tags': ['SAS URL Generation'],
+    'summary': 'Generate a SAS URL for uploading a file to Azure Blob Storage',
+    'description': 'This endpoint generates a Shared Access Signature (SAS) URL for a file upload and updates the photoLink in the database.',
+    'security': [{'BearerAuth': []}],
+    'parameters': [
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'fileName': {
+                        'type': 'string',
+                        'example': 'example.jpg',
+                        'description': 'The name of the file to upload.'
+                    },
+                    'itemID': {
+                        'type': 'string',
+                        'example': '123',
+                        'description': 'The ID of the item to associate the uploaded file with.'
+                    }
+                },
+                'required': ['fileName', 'itemID']
+            }
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'SAS URL successfully generated.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'sasUrl': {
+                        'type': 'string',
+                        'example': 'https://youraccount.blob.core.windows.net/container/example.jpg?sv=...'
+                    }
+                }
+            }
+        },
+        400: {
+            'description': 'Missing required fields in the request body.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'error': {'type': 'string'}
+                }
+            }
+        },
+        500: {
+            'description': 'Internal server error occurred while generating SAS URL.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'error': {'type': 'string'}
+                }
+            }
+        }
+    }
+})
 def generate_sas_url():
     file_name = request.json.get("fileName")
     itemID = request.json.get("itemID")
