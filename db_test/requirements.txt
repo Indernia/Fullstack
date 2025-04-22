@@ -6,3 +6,4 @@ psycopg2-binary
 Flask-Bcrypt 
 Flask-JWT-Extended
 azure-storage-blob
+stripe
