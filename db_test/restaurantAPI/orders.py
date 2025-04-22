@@ -252,6 +252,57 @@ def get_order_items(orderId):
 stripe.api_key = os.getenv('STRIPE_API_KEY')
 
 @orders_blueprint.route('/orders/<int:orderID>/create-payment-session', methods=['POST'])
+@swag_from({
+    'tags': ['Orders'],
+    'parameters': [
+        {
+            'name': 'orderID',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID of the order for which the payment session is being created.'
+        }
+    ],
+    'responses': {
+        '200': {
+            'description': 'Checkout session URL successfully created.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'checkout_url': {
+                        'type': 'string',
+                        'description': 'URL to the Stripe checkout session.',
+                        'example': "https://checkout.stripe.com/pay/cs_test_a1b2c3d4..."
+                    }
+                }
+            }
+        },
+        '404': {
+            'description': 'Order not found.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'error': {
+                        'type': 'string',
+                        'example': "Order not found"
+                    }
+                }
+            }
+        },
+        '500': {
+            'description': 'Internal server error.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'error': {
+                        'type': 'string',
+                        'example': "Internal Server Error"
+                    }
+                }
+            }
+        }
+    }
+})
 def create_checkout_session(orderID):
     order = query_db("SELECT * FROM orders WHERE id = %s", args=(orderID,))
     if not order:
