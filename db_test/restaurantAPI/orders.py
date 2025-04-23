@@ -3,7 +3,7 @@ from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from .api_keys import validate_api_key
-import stripe
+import stripe 
 import os
 
 orders_blueprint = Blueprint('orders', __name__)
@@ -304,6 +304,7 @@ stripe.api_key = os.getenv('STRIPE_API_KEY')
     }
 })
 def create_checkout_session(orderID):
+    data = request.get_json()
     order = query_db("SELECT * FROM orders WHERE id = %s", args=(orderID,))
     if not order:
         return jsonify({"error": "Order not found"}), 404
@@ -336,6 +337,21 @@ def create_checkout_session(orderID):
             },
             'quantity': item['quantity'],
         })
+    
+    if 'tip' in data:
+        tip = data.get('tip')
+        line_items.append({
+            'price_data': {
+                'currency': 'usd',
+                'unit_amount': int(tip * 100),
+                'product_data': {
+                    'name': "tip",
+                    'description': "Tip for the staff"
+                },
+            },
+            'quantity': 1,
+        })
+
     try:
         # Create the Stripe Checkout session
         session = stripe.checkout.Session.create(
