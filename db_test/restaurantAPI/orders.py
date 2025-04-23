@@ -261,6 +261,21 @@ stripe.api_key = os.getenv('STRIPE_API_KEY')
             'type': 'integer',
             'required': True,
             'description': 'ID of the order for which the payment session is being created.'
+        },
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': False,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'tip': {
+                        'type': 'number',
+                        'format': 'float',
+                        'description': 'Optional tip amount in USD to include in the payment.'
+                    }
+                }
+            }
         }
     ],
     'responses': {
