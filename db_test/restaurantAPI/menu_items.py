@@ -90,7 +90,7 @@ def get_menu_item(itemID):
     ]
 })
 def get_menu_items_by_section(sectionID):
-    request_data = query_db("SELECT * FROM menuitem WHERE sectionID = %s",
+    request_data = query_db("SELECT * FROM menuitem WHERE sectionID = %s AND isDeleted = False",
                             args=(sectionID,))
     return jsonify(request_data)
 
@@ -224,7 +224,7 @@ def update_menu_item(itemID):
 })
 def delete_menu_item(itemID):
     try:
-        insert_db('DELETE FROM menuitem WHERE id = %s', args=(itemID,))
+        insert_db('UPDATE menuitem SET isDeleted = True WHERE id = %s', args=(itemID,))
         return jsonify({"message": "Menu Item deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

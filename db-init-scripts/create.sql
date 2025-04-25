@@ -3,14 +3,16 @@ CREATE TABLE AdminUser (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     name TEXT NOT NULL,
     email TEXT NOT NULL,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 -- 2) "User"
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     name TEXT NOT NULL,
-    email TEXT NOT NULL
+    email TEXT NOT NULL,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 -- 3) Tag
@@ -18,7 +20,8 @@ CREATE TABLE Tag (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     tagType TEXT NOT NULL,
     tagValue TEXT NOT NULL,
-    tagDescription TEXT
+    tagDescription TEXT,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 -- Theme
@@ -30,7 +33,8 @@ CREATE TABLE themes (
     text VARCHAR(7) NOT NULL,
     text2 VARCHAR(7) NOT NULL,
     accent1 VARCHAR(7) NOT NULL,
-    accent2 VARCHAR(7) NOT NULL
+    accent2 VARCHAR(7) NOT NULL,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 -- 4) Restaurant
@@ -41,6 +45,7 @@ CREATE TABLE Restaurant (
     latitude REAL,
     longitude REAL,
     theme TEXT NOT NULL DEFAULT 'Standard',
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (ownerID) REFERENCES AdminUser(id),
     FOREIGN KEY (theme) REFERENCES themes(name)
 );
@@ -49,6 +54,7 @@ CREATE TABLE Restaurant (
 CREATE TABLE apikeys (
     apikey TEXT NOT NULL PRIMARY KEY,
     restaurantID INT NOT NULL,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (restaurantID) REFERENCES restaurant(id) 
 );
 
@@ -58,6 +64,7 @@ CREATE TABLE Rating (
     rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5), 
     restaurantID INTEGER NOT NULL,
     text TEXT,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (restaurantID) REFERENCES Restaurant(id)
 );
 
@@ -66,6 +73,7 @@ CREATE TABLE Menu (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     restaurantID INTEGER NOT NULL,
     description TEXT,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (restaurantID) REFERENCES Restaurant(id)
 );
 
@@ -74,6 +82,7 @@ CREATE TABLE MenuSection (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     menuID INTEGER NOT NULL,
     name TEXT NOT NULL,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (menuID) REFERENCES Menu(id)
 );
 
@@ -86,6 +95,7 @@ CREATE TABLE MenuItem (
     name TEXT NOT NULL,
     price REAL NOT NULL,
     type TEXT,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (sectionID) REFERENCES MenuSection(id)
 );
 
@@ -94,6 +104,7 @@ CREATE TABLE MenuItemHasTag (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     menuItemID INTEGER NOT NULL,
     tagID INTEGER NOT NULL,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (menuItemID) REFERENCES MenuItem(id),
     FOREIGN KEY (tagID) REFERENCES Tag(id)
 );
@@ -103,6 +114,7 @@ CREATE TABLE UserLikesTag (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     userID INTEGER NOT NULL,
     tagID INTEGER NOT NULL,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (userID) REFERENCES users(id),
     FOREIGN KEY (tagID) REFERENCES Tag(id)
 );
@@ -112,6 +124,7 @@ CREATE TABLE UserLikesMenuItem (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     userID INTEGER NOT NULL,
     menuItemID INTEGER NOT NULL,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (userID) REFERENCES users(id),
     FOREIGN KEY (menuItemID) REFERENCES MenuItem(id)
 );
@@ -122,6 +135,7 @@ CREATE TABLE RestaurantTable (
     restaurantID INTEGER NOT NULL,
     tableNumber INTEGER NOT NULL,
     name TEXT,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (restaurantID) REFERENCES Restaurant(id)
 );
 
@@ -136,6 +150,7 @@ CREATE TABLE orders (
     orderCost REAL NOT NULL,
     orderComplete BOOLEAN NOT NULL,
     comments TEXT,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (userID) REFERENCES users(id),
     FOREIGN KEY (tableID) REFERENCES RestaurantTable(id),
     FOREIGN KEY (restaurantID) REFERENCES Restaurant(id)
@@ -147,6 +162,7 @@ CREATE TABLE OrderIncludesMenuItem (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     orderID INTEGER NOT NULL,
     menuItemID INTEGER NOT NULL,
+    isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (orderID) REFERENCES orders(id),
     FOREIGN KEY (menuItemID) REFERENCES MenuItem(id)
 );
