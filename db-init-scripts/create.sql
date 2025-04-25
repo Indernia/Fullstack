@@ -105,6 +105,7 @@ CREATE TABLE MenuItemHasTag (
     menuItemID INTEGER NOT NULL,
     tagID INTEGER NOT NULL,
     isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
+    UNIQUE (menuItemID, tagID),
     FOREIGN KEY (menuItemID) REFERENCES MenuItem(id),
     FOREIGN KEY (tagID) REFERENCES Tag(id)
 );
