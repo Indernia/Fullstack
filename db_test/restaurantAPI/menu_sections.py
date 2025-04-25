@@ -100,7 +100,7 @@ def add_menu_section():
     ]
 })
 def get_menu_sections_by_menu(menuID):
-    request_data = query_db("SELECT * FROM menusection WHERE menuID = %s", args=(menuID,))
+    request_data = query_db("SELECT * FROM menusection WHERE menuID = %s AND isDeleted = false", args=(menuID,))
     return jsonify(request_data)
 
 @menu_sections_blueprint.route('/menuSections/<sectionID>/update', methods=["PUT"])
@@ -170,7 +170,7 @@ def update_menu_section(sectionID):
 })
 def delete_menu_section(sectionID):
     try:
-        insert_db('DELETE FROM menusection WHERE id = %s', args=(sectionID,))
+        insert_db('UPDATE menusection SET isDeleted = false WHERE id = %s', args=(sectionID,))
         return jsonify({"message": "Menu Section deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
