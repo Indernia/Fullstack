@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from database import query_db, insert_db
 from flasgger import swag_from
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 menu_sections_blueprint = Blueprint('menu_sections', __name__)
 
@@ -46,6 +47,7 @@ def get_menu_section(sectionID):
 
 
 @menu_sections_blueprint.route('/menuSections/add', methods=["POST"])
+@jwt_required()
 @swag_from({
     'tags': ['Menu Sections'],
     'responses': {
@@ -102,6 +104,7 @@ def get_menu_sections_by_menu(menuID):
     return jsonify(request_data)
 
 @menu_sections_blueprint.route('/menuSections/<sectionID>/update', methods=["PUT"])
+@jwt_required()
 @swag_from({
     'tags': ['Menu Sections'],
     'responses': {
@@ -150,6 +153,7 @@ def update_menu_section(sectionID):
 
 
 @menu_sections_blueprint.route('/menuSections/<sectionID>', methods=["DELETE"])
+@jwt_required()
 @swag_from({
     'tags': ['Menu Sections'],
     'responses': {

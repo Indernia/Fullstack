@@ -140,6 +140,7 @@ def add_restaurant():
 
 
 @restaurants_blueprint.route('/<restaurant_id>/update', methods=["PUT"])
+@jwt_required() 
 @swag_from({
     'tags': ['Restaurants'],
     'responses': {
@@ -170,6 +171,7 @@ def update_restaurant(restaurant_id):
 
 
 @restaurants_blueprint.route('/restaurants/<restaurantID>', methods=["DELETE"])
+@jwt_required()
 @swag_from({
     'tags': ['Restaurants'],
     'responses': {
