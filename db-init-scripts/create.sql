@@ -38,7 +38,7 @@ CREATE TABLE themes (
 );
 
 -- 4) Restaurant
-CREATE TABLE Restaurant (
+CREATE TABLE restaurant (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     ownerID INTEGER NOT NULL,
     name TEXT NOT NULL,

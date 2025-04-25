@@ -3,7 +3,6 @@ from database import query_db, insert_db
 from flasgger import swag_from
 
 
-
 tags_blueprint = Blueprint('tags', __name__)
 
 
