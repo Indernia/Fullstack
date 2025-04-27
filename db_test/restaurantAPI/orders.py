@@ -239,14 +239,19 @@ def mark_order_complete(orderID):
         'description': 'Order not found'
     }},
 })
-def get_order_items(orderId):
+def get_order_items(orderID):
     request_data = query_db("""
-                            SELECT mi.*
-                            FROM orderincludesmenuitem oim
-                            LEFT JOIN menuitem mi ON oim.orderID = mi.id
-                            WHERE orderID = %s
-                            """,
-                            args=(orderId,))
+        SELECT 
+            mi.id, 
+            mi.name, 
+            mi.description, 
+            mi.price, 
+            COUNT(*) AS quantity
+        FROM OrderIncludesMenuItem oim
+        JOIN MenuItem mi ON oim.menuItemID = mi.id
+        WHERE oim.orderID = %s
+        GROUP BY mi.id, mi.name, mi.description, mi.price
+    """, args=(orderID,))
     return jsonify(request_data)
 
 stripe.api_key = os.getenv('STRIPE_API_KEY')
