@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .api_keys import validate_api_key
+from extensions import bcrypt
 import stripe 
 import os
 
@@ -54,16 +54,19 @@ def get_orders():
     if not apikey:
         return jsonify({"error": "Missing API key"}), 404
 
-    restaurant_data = query_db(
-        "SELECT restaurantID FROM apikeys WHERE apikey = %s AND isDeleted = false",
-        args=(apikey,),
-        one=True
+    api_records = query_db(
+        "SELECT apikey, restaurantID FROM apikeys WHERE isDeleted = false",
+        args=()
     )
 
-    if not restaurant_data:
-        return jsonify({"error": "Invalid or deleted API key"}), 401
+    restaurant_id = None
+    for record in api_records:
+        if bcrypt.check_password_hash(record["apikey"], apikey):
+            restaurant_id = record["restaurantID"]
+            break
 
-    restaurant_id = restaurant_data["restaurantID"]
+    if not restaurant_id:
+        return jsonify({"error": "Invalid or deleted API key"}), 401
 
     request_data = query_db("""
                         SELECT
