@@ -79,9 +79,9 @@ def get_orders():
                         FROM orders o
                         LEFT JOIN orderincludesmenuitem oim ON oim.orderID = o.id
                         LEFT JOIN menuitem mi ON oim.menuItemID = mi.id
-                        WHERE o.restaurantID = %s
                         AND orderComplete = false
                         GROUP BY o.id
+                        HAVING o.restaurantID = %s
                         """,
                             args=(restaurant_id))
     return jsonify(request_data)
