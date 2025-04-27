@@ -9,7 +9,7 @@ import os
 orders_blueprint = Blueprint('orders', __name__)
 
 
-@orders_blueprint.route('/orders/byrestaurant/<restaurantId>/', methods=["GET"])
+@orders_blueprint.route('/orders/byrestaurant', methods=["GET"])
 @swag_from({
     'tags': ['Orders'],
     'responses': {
@@ -48,16 +48,22 @@ orders_blueprint = Blueprint('orders', __name__)
             'description': 'Orders not found'
         }},
     })
-def get_orders(restaurantId):
+def get_orders():
     apikey = request.headers.get("authorization").split(" ")[1]
 
-    print(apikey)
-    print(request.headers.get("authorization"))
     if not apikey:
         return jsonify({"error": "Missing API key"}), 404
 
-    if not validate_api_key(apikey, restaurantId):
-        return jsonify({"error": "Invalid API key or restaurant ID"}), 401
+    restaurant_data = query_db(
+        "SELECT restaurantID FROM apikeys WHERE apikey = %s AND isDeleted = false",
+        args=(apikey,),
+        one=True
+    )
+
+    if not restaurant_data:
+        return jsonify({"error": "Invalid or deleted API key"}), 401
+
+    restaurant_id = restaurant_data["restaurantID"]
 
     request_data = query_db("""
                         SELECT
@@ -70,7 +76,7 @@ def get_orders(restaurantId):
                         AND orderComplete = false
                         GROUP BY o.id
                         """
-                            , args=(restaurantId))
+                        , args=(restaurant_id))
     return jsonify(request_data)
 
 
@@ -239,14 +245,19 @@ def mark_order_complete(orderID):
         'description': 'Order not found'
     }},
 })
-def get_order_items(orderId):
+def get_order_items(orderID):
     request_data = query_db("""
-                            SELECT mi.*
-                            FROM orderincludesmenuitem oim
-                            LEFT JOIN menuitem mi ON oim.orderID = mi.id
-                            WHERE orderID = %s
-                            """,
-                            args=(orderId,))
+        SELECT 
+            mi.id, 
+            mi.name, 
+            mi.description, 
+            mi.price, 
+            COUNT(*) AS quantity
+        FROM OrderIncludesMenuItem oim
+        JOIN MenuItem mi ON oim.menuItemID = mi.id
+        WHERE oim.orderID = %s
+        GROUP BY mi.id, mi.name, mi.description, mi.price
+    """, args=(orderID,))
     return jsonify(request_data)
 
 stripe.api_key = os.getenv('STRIPE_API_KEY')
