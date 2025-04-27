@@ -49,10 +49,14 @@ orders_blueprint = Blueprint('orders', __name__)
         }},
     })
 def get_orders():
-    apikey = request.headers.get("authorization").split(" ")[1]
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return jsonify({"error": "Missing authorization header"}), 401
 
-    if not apikey:
-        return jsonify({"error": "Missing API key"}), 404
+    try:
+        apikey = auth_header.split(" ")[1]
+    except IndexError:
+        return jsonify({"error": "Invalid authorization header format"}), 401
 
     api_records = query_db(
         "SELECT apikey, restaurantID FROM apikeys WHERE isDeleted = false",
