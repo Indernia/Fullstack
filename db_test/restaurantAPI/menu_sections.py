@@ -170,7 +170,7 @@ def update_menu_section(sectionID):
 })
 def delete_menu_section(sectionID):
     try:
-        insert_db('UPDATE menusection SET isDeleted = false WHERE id = %s', args=(sectionID,))
+        insert_db('UPDATE menusection SET isDeleted = true WHERE id = %s', args=(sectionID,))
         return jsonify({"message": "Menu Section deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

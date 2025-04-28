@@ -1,7 +1,10 @@
 from flask import Blueprint, jsonify, request
 from database import query_db, insert_db
 from flasgger import swag_from
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required
+from azure.storage.blob import BlobServiceClient
+from urllib.parse import urlparse
+import os
 
 menu_items_blueprint = Blueprint('menu_items', __name__)
 
@@ -204,27 +207,79 @@ def update_menu_item(itemID):
 @jwt_required()
 @swag_from({
     'tags': ['Menu Items'],
-    'description': 'Delete a menu item',
+    'summary': 'Delete a menu item and its associated image from Blob Storage',
+    'description': 'This endpoint deletes a menu item and its associated image from Azure Blob Storage.',
     'parameters': [
         {
             'name': 'itemID',
-            'description': 'The ID of the menu item to delete',
             'in': 'path',
-            'type': 'integer',
-            'required': True
-        }],
+            'description': 'The ID of the menu item to delete',
+            'required': True,
+            'type': 'integer'
+        }
+    ],
     'responses': {
-        200: {
-            'description': 'Menu item deleted successfully'
+        '200': {
+            'description': 'Menu item and blob deleted successfully',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'message': {
+                        'type': 'string',
+                        'example': 'Menu Item deleted successfully and blob storage'
+                    }
+                }
+            }
         },
-        500: {
-            'description': 'An error occurred while deleting the menu item'
+        '500': {
+            'description': 'An error occurred while deleting the menu item or blob',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'error': {
+                        'type': 'string',
+                        'example': 'Error message'
+                    }
+                }
+            }
         }
     }
 })
 def delete_menu_item(itemID):
     try:
         insert_db('UPDATE menuitem SET isDeleted = True WHERE id = %s', args=(itemID,))
-        return jsonify({"message": "Menu Item deleted successfully"}), 200
+
+        menu_item = query_db('SELECT photoLink FROM menuitem WHERE id = %s', args=(itemID,), one=True)
+        
+        if menu_item and menu_item['photoLink']:
+            photo_link = menu_item['photoLink']     
+            specific_url = "https://jamnawmenu.blob.core.windows.net/menu-items/pexels-chanwalrus-958545.jpg"
+            
+            if photo_link == specific_url:
+                return jsonify({"message": "Menu Item deleted successfully"}), 200
+            
+            # 3. Parse the blob name from the full URL
+            parsed_url = urlparse(photo_link)
+            blob_name = parsed_url.path.split('menu-items/', 1)[-1]
+
+            container_name = "menu-items"
+            account_name = os.getenv("AZURE_STORAGE_ACCOUNT")
+            account_key = os.getenv("AZURE_STORAGE_ACCESS_KEY")
+
+            # 4. Connect to Azure Blob Storage
+            blob_service_client = BlobServiceClient(
+                account_url=f"https://{account_name}.blob.core.windows.net",
+                credential=account_key
+            )
+
+            blob_client = blob_service_client.get_blob_client(
+            container=container_name,
+            blob=blob_name
+            )
+
+            # Delete the blob
+            blob_client.delete_blob()
+
+        return jsonify({"message": "Menu Item deleted successfully and blob storage"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

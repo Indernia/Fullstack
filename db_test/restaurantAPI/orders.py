@@ -200,7 +200,6 @@ def add_order():
 
     return jsonify({"message": f"Order created: {orderID}"}), 201
 
-
 @orders_blueprint.route('/orders/markComplete/<orderID>/', methods=["PUT"])
 @swag_from({
 'tags': ['Orders'],
@@ -223,34 +222,30 @@ def mark_order_complete(orderID):
     insert_db("UPDATE orders SET orderComplete = TRUE WHERE id = %s", args=(orderID,))
     return jsonify({"message": "Order marked as complete"}), 200
 
-
-
 @orders_blueprint.route('/orders/items/<orderId>/', methods=["GET"])
 @swag_from({
-'tags': ['Orders'],
-'parameters': [{
-    'name': 'orderId',
-    'in': 'path',
-    'description': 'The ID of the order to get items from',
-    'required': True,
-    'type': 'integer'
-}],
-'responses': {
-    200: {
-        'description': 'Items in the order',
-        'schema': {
-            'type': 'object',
-            'properties': {
-                'menuItemID': {
-                    'type': 'integer',
-                    'description': 'The ID of the menu item'
+    'tags': ['Orders'],
+    'parameters': [{
+        'name': 'orderId',
+        'in': 'path',
+        'description': 'The ID of the order to get items from',
+        'required': True,
+        'type': 'integer'
+    }],
+    'responses': {
+        200: {
+            'description': 'Items in the order',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'menuItemID': {
+                        'type': 'integer',
+                        'description': 'The ID of the menu item'
+                    }
                 }
             }
         }
-    },
-    404: {
-        'description': 'Order not found'
-    }},
+    }
 })
 def get_order_items(orderID):
     request_data = query_db("""
@@ -342,6 +337,15 @@ def create_checkout_session(orderID):
     if not order:
         return jsonify({"error": "Order not found"}), 404
     
+    result = query_db("""
+        SELECT r.stripekey
+        FROM orders o
+        JOIN restaurant r ON o.restaurantid = r.id
+        WHERE o.id = %s
+    """, args=(orderID,))
+    
+    stripe.api_key = result['stripekey']
+
     # Fetch associated menu items and their quantities
     items = query_db("""
         SELECT 
@@ -371,7 +375,7 @@ def create_checkout_session(orderID):
             'quantity': item['quantity'],
         })
     
-    if 'tip' in data:
+    if data and 'tip' in data:
         tip = data.get('tip')
         line_items.append({
             'price_data': {

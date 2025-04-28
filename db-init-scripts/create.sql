@@ -4,7 +4,6 @@ CREATE TABLE AdminUser (
     name TEXT NOT NULL,
     email TEXT NOT NULL,
     password TEXT NOT NULL,
-    stripeKey TEXT,
     isDeleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
@@ -46,6 +45,7 @@ CREATE TABLE restaurant (
     latitude REAL,
     longitude REAL,
     theme TEXT NOT NULL DEFAULT 'Standard',
+    stripeKey TEXT NOT NULL,
     isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (ownerID) REFERENCES AdminUser(id),
     FOREIGN KEY (theme) REFERENCES themes(name)
