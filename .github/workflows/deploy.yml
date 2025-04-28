@@ -54,7 +54,6 @@ jobs:
             # Export secrets as environment variables
             export AZURE_STORAGE_ACCOUNT=${{ secrets.AZURE_STORAGE_ACCOUNT }}
             export AZURE_STORAGE_ACCESS_KEY=${{ secrets.AZURE_STORAGE_ACCESS_KEY }}
-            export STRIPE_API_KEY=${{ secrets.STRIPE_API_KEY }}
             
             # Pull the latest image
             docker pull ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest
