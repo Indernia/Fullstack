@@ -203,54 +203,82 @@ def add_order():
 
 @orders_blueprint.route('/orders/markComplete/<orderID>/', methods=["PUT"])
 @swag_from({
-'tags': ['Orders'],
-'parameters': [{
-    'name': 'orderId',
-    'in': 'path',
-    'description': 'The ID of the order to mark as complete',
-    'required': True,
-    'type': 'integer'
-}],
-'responses': {
-    200: {
-        'description': 'Order marked as complete'
-    },
-    404: {
-        'description': 'Order not found'
-    }},
-})
-def mark_order_complete(orderID):
-    insert_db("UPDATE orders SET orderComplete = TRUE WHERE id = %s", args=(orderID,))
-    return jsonify({"message": "Order marked as complete"}), 200
-
-
-
-@orders_blueprint.route('/orders/items/<orderId>/', methods=["GET"])
-@swag_from({
-'tags': ['Orders'],
-'parameters': [{
-    'name': 'orderId',
-    'in': 'path',
-    'description': 'The ID of the order to get items from',
-    'required': True,
-    'type': 'integer'
-}],
-'responses': {
-    200: {
-        'description': 'Items in the order',
-        'schema': {
-            'type': 'object',
-            'properties': {
-                'menuItemID': {
-                    'type': 'integer',
-                    'description': 'The ID of the menu item'
+    'tags': ['Orders'],
+    'parameters': [
+        {
+            'name': 'orderID',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID of the order for which the payment session is being created.'
+        },
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': False,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'tip': {
+                        'type': 'number',
+                        'format': 'float',
+                        'description': 'Optional tip amount in USD to include in the payment.'
+                    }
                 }
             }
         }
-    },
-    404: {
-        'description': 'Order not found'
-    }},
+    ],
+    'responses': {
+        '200': {
+            'description': 'Checkout session URL successfully created.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'checkout_url': {
+                        'type': 'string',
+                        'description': 'URL to the Stripe checkout session.',
+                        'example': "https://checkout.stripe.com/pay/cs_test_a1b2c3d4..."
+                    }
+                }
+            }
+        },
+        '400': {
+            'description': 'Bad Request (e.g., Stripe key missing).',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'error': {
+                        'type': 'string',
+                        'example': "Owner has not set stripeKey"
+                    }
+                }
+            }
+        },
+        '404': {
+            'description': 'Order not found.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'error': {
+                        'type': 'string',
+                        'example': "Order not found"
+                    }
+                }
+            }
+        },
+        '500': {
+            'description': 'Internal server error.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'error': {
+                        'type': 'string',
+                        'example': "Internal Server Error"
+                    }
+                }
+            }
+        }
+    }
 })
 def get_order_items(orderID):
     request_data = query_db("""
@@ -342,6 +370,19 @@ def create_checkout_session(orderID):
     if not order:
         return jsonify({"error": "Order not found"}), 404
     
+    result = query_db("""
+        SELECT au.stripeKey
+        FROM orders o
+        JOIN restaurant r ON o.restaurantID = r.id
+        JOIN AdminUser au ON r.ownerID = au.ID
+        WHERE o.id = %s
+    """, args=(orderID,))
+
+    if not result or not result['stripeKey']:
+        return jsonify({"error": "Owner has not set stripeKey"}), 400
+    
+    stripe.api_key = result['stripeKey']
+
     # Fetch associated menu items and their quantities
     items = query_db("""
         SELECT 
@@ -371,7 +412,7 @@ def create_checkout_session(orderID):
             'quantity': item['quantity'],
         })
     
-    if 'tip' in data:
+    if data and 'tip' in data:
         tip = data.get('tip')
         line_items.append({
             'price_data': {
