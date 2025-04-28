@@ -371,16 +371,13 @@ def create_checkout_session(orderID):
         return jsonify({"error": "Order not found"}), 404
     
     result = query_db("""
-        SELECT r.stripeKey
+        SELECT r.stripekey
         FROM orders o
-        JOIN restaurant r ON o.restaurantID = r.id
+        JOIN restaurant r ON o.restaurantid = r.id
         WHERE o.id = %s
     """, args=(orderID,))
-
-    if not result or not result['stripeKey']:
-        return jsonify({"error": "Owner has not set stripeKey"}), 400
     
-    stripe.api_key = result['stripeKey']
+    stripe.api_key = result['stripekey']
 
     # Fetch associated menu items and their quantities
     items = query_db("""
