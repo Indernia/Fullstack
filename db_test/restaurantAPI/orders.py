@@ -371,10 +371,9 @@ def create_checkout_session(orderID):
         return jsonify({"error": "Order not found"}), 404
     
     result = query_db("""
-        SELECT au.stripeKey
+        SELECT r.stripeKey
         FROM orders o
         JOIN restaurant r ON o.restaurantID = r.id
-        JOIN AdminUser au ON r.ownerID = au.ID
         WHERE o.id = %s
     """, args=(orderID,))
 
