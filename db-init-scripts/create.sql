@@ -45,7 +45,7 @@ CREATE TABLE restaurant (
     latitude REAL,
     longitude REAL,
     theme TEXT NOT NULL DEFAULT 'Standard',
-    stripekey TEXT NOT NULL,
+    stripekey TEXT,
     isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     openingtime TEXT,
     closingtime TEXT,
