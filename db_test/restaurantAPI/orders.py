@@ -61,26 +61,25 @@ def get_orders():
 
     hashed_key = hashlib.sha256(apikey.encode()).hexdigest()
 
-    restaurant_id = query_db(
-        "SELECT restaurantID FROM apikeys WHERE apikey = %s AND isDeleted = false",
-        args=(hashed_key,), one=True
-    )
-
-    if not restaurant_id:
-        return jsonify({"error": "Invalid or deleted API key"}), 401
-
     request_data = query_db("""
-                        SELECT
-                        o.*,
-                        json_agg(mi.*) AS menuItems
-                        FROM orders o
-                        LEFT JOIN orderincludesmenuitem oim ON oim.orderID = o.id
-                        LEFT JOIN menuitem mi ON oim.menuItemID = mi.id
-                        WHERE o.restaurantID = %s
-                        AND orderComplete = false
-                        GROUP BY o.id
-                        """,
-                            args=(restaurant_id,))
+    WITH restaurant AS (
+        SELECT restaurantID
+        FROM apikeys
+        WHERE apikey = %s AND isDeleted = false
+        LIMIT 1
+    )
+    SELECT
+        o.*,
+        json_agg(mi.*) AS menuItems
+    FROM orders o
+    LEFT JOIN orderincludesmenuitem oim ON oim.orderID = o.id
+    LEFT JOIN menuitem mi ON oim.menuItemID = mi.id
+    WHERE o.restaurantID = (SELECT restaurantID FROM restaurant)
+    AND orderComplete = false
+    GROUP BY o.id
+    """,
+    args=(hashed_key,)
+)
     return jsonify(request_data)
 
 
