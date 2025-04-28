@@ -200,80 +200,47 @@ def add_order():
 
     return jsonify({"message": f"Order created: {orderID}"}), 201
 
-
 @orders_blueprint.route('/orders/markComplete/<orderID>/', methods=["PUT"])
 @swag_from({
+'tags': ['Orders'],
+'parameters': [{
+    'name': 'orderId',
+    'in': 'path',
+    'description': 'The ID of the order to mark as complete',
+    'required': True,
+    'type': 'integer'
+}],
+'responses': {
+    200: {
+        'description': 'Order marked as complete'
+    },
+    404: {
+        'description': 'Order not found'
+    }},
+})
+def mark_order_complete(orderID):
+    insert_db("UPDATE orders SET orderComplete = TRUE WHERE id = %s", args=(orderID,))
+    return jsonify({"message": "Order marked as complete"}), 200
+
+@orders_blueprint.route('/orders/items/<orderId>/', methods=["GET"])
+@swag_from({
     'tags': ['Orders'],
-    'parameters': [
-        {
-            'name': 'orderID',
-            'in': 'path',
-            'type': 'integer',
-            'required': True,
-            'description': 'ID of the order for which the payment session is being created.'
-        },
-        {
-            'name': 'body',
-            'in': 'body',
-            'required': False,
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'tip': {
-                        'type': 'number',
-                        'format': 'float',
-                        'description': 'Optional tip amount in USD to include in the payment.'
-                    }
-                }
-            }
-        }
-    ],
+    'parameters': [{
+        'name': 'orderId',
+        'in': 'path',
+        'description': 'The ID of the order to get items from',
+        'required': True,
+        'type': 'integer'
+    }],
     'responses': {
-        '200': {
-            'description': 'Checkout session URL successfully created.',
+        200: {
+            'description': 'Items in the order',
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'checkout_url': {
-                        'type': 'string',
-                        'description': 'URL to the Stripe checkout session.',
-                        'example': "https://checkout.stripe.com/pay/cs_test_a1b2c3d4..."
-                    }
-                }
-            }
-        },
-        '400': {
-            'description': 'Bad Request (e.g., Stripe key missing).',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'error': {
-                        'type': 'string',
-                        'example': "Owner has not set stripeKey"
-                    }
-                }
-            }
-        },
-        '404': {
-            'description': 'Order not found.',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'error': {
-                        'type': 'string',
-                        'example': "Order not found"
-                    }
-                }
-            }
-        },
-        '500': {
-            'description': 'Internal server error.',
-            'schema': {
-                'type': 'object',
-                'properties': {
-                    'error': {
-                        'type': 'string',
-                        'example': "Internal Server Error"
+                    'menuItemID': {
+                        'type': 'integer',
+                        'description': 'The ID of the menu item'
                     }
                 }
             }
