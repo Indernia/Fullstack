@@ -4,6 +4,7 @@ from flasgger import swag_from
 from flask_jwt_extended import jwt_required
 import secrets
 from extensions import bcrypt
+import hashlib
 
 
 api_keys_blueprint = Blueprint('api_keys', __name__)
@@ -36,7 +37,7 @@ def add_api_key():
     restaurantID = data.get("restaurantID")
     apikey = generate_api_key()
 
-    hashed_key = bcrypt.generate_password_hash(apikey).decode('utf-8')
+    hashed_key = hashlib.sha256(apikey.encode()).hexdigest()
 
     if not restaurantID:
         return jsonify({"error": "Missing required fields"}), 400
