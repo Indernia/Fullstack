@@ -72,7 +72,7 @@ def get_orders():
     request_data = query_db("""
                         SELECT
                         o.*,
-                        json_agg(mi) AS menuItems
+                        json_agg(mi.*) AS menuItems
                         FROM orders o
                         LEFT JOIN orderincludesmenuitem oim ON oim.orderID = o.id
                         LEFT JOIN menuitem mi ON oim.menuItemID = mi.id
