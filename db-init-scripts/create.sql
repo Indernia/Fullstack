@@ -45,8 +45,11 @@ CREATE TABLE restaurant (
     latitude REAL,
     longitude REAL,
     theme TEXT NOT NULL DEFAULT 'Standard',
-    stripeKey TEXT NOT NULL,
+    stripekey TEXT NOT NULL,
     isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
+    openingtime TEXT,
+    closingtime TEXT,
+    description TEXT,
     FOREIGN KEY (ownerID) REFERENCES AdminUser(id),
     FOREIGN KEY (theme) REFERENCES themes(name)
 );
