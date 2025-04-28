@@ -5,6 +5,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from extensions import bcrypt
 import stripe 
 import os
+import hashlib
 
 orders_blueprint = Blueprint('orders', __name__)
 
@@ -58,16 +59,12 @@ def get_orders():
     except IndexError:
         return jsonify({"error": "Invalid authorization header format"}), 401
 
-    api_records = query_db(
-        "SELECT apikey, restaurantID FROM apikeys WHERE isDeleted = false",
-        args=()
-    )
+    hashed_key = hashlib.sha256(apikey.encode()).hexdigest()
 
-    restaurant_id = None
-    for record in api_records:
-        if bcrypt.check_password_hash(record["apikey"], apikey):
-            restaurant_id = record["restaurantid"]
-            break
+    restaurant_id = query_db(
+        "SELECT restaurantID FROM apikeys WHERE apikey = %s AND isDeleted = false",
+        args=(hashed_key,), one=True
+    )
 
     if not restaurant_id:
         return jsonify({"error": "Invalid or deleted API key"}), 401
