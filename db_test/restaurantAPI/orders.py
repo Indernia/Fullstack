@@ -66,7 +66,7 @@ def get_orders():
     restaurant_id = None
     for record in api_records:
         if bcrypt.check_password_hash(record["apikey"], apikey):
-            restaurant_id = record["restaurantID"]
+            restaurant_id = record["restaurantid"]
             break
 
     if not restaurant_id:
@@ -82,8 +82,8 @@ def get_orders():
                         WHERE o.restaurantID = %s
                         AND orderComplete = false
                         GROUP BY o.id
-                        """
-                        , args=(restaurant_id))
+                        """,
+                            args=(restaurant_id,))
     return jsonify(request_data)
 
 

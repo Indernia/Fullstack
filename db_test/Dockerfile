@@ -26,4 +26,4 @@ COPY . .
 EXPOSE 8000
 
 # Start the application with Gunicorn
-CMD ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:8000", "app:app", "--log-level", "debug", "--error-logfile", "-", "--access-logfile", "-"]
+CMD ["gunicorn", "--workers", "10", "--bind", "0.0.0.0:8000", "app:app", "--log-level", "debug", "--error-logfile", "-", "--access-logfile", "-"]
