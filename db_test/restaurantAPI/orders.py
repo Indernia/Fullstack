@@ -311,7 +311,7 @@ stripe.api_key = os.getenv('STRIPE_API_KEY')
                 'type': 'object',
                 'properties': {
                     'error': {
-                        'type': 'string',
+                    'type': 'string',
                         'example': "Order not found"
                     }
                 }
@@ -342,7 +342,7 @@ def create_checkout_session(orderID):
         FROM orders o
         JOIN restaurant r ON o.restaurantid = r.id
         WHERE o.id = %s
-    """, args=(orderID,))
+    """, args=(orderID,), one=True)
     
     stripe.api_key = result['stripekey']
 
