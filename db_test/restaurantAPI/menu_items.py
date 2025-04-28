@@ -250,9 +250,14 @@ def delete_menu_item(itemID):
         insert_db('UPDATE menuitem SET isDeleted = True WHERE id = %s', args=(itemID,))
 
         menu_item = query_db('SELECT photoLink FROM menuitem WHERE id = %s', args=(itemID,), one=True)
+        
         if menu_item and menu_item['photoLink']:
             photo_link = menu_item['photoLink']     
-
+            specific_url = "https://jamnawmenu.blob.core.windows.net/menu-items/pexels-chanwalrus-958545.jpg"
+            
+            if photo_link == specific_url:
+                return jsonify({"message": "Menu Item deleted successfully"}), 200
+            
             # 3. Parse the blob name from the full URL
             parsed_url = urlparse(photo_link)
             blob_name = parsed_url.path.split('menu-items/', 1)[-1]

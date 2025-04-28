@@ -123,6 +123,10 @@ def get_all_restaurants():
                 'longitude': {
                     'type': 'number',
                     'description': 'The longitude of the restaurant'
+                },
+                'stripeKey': {
+                    'type': 'string',
+                    'description': 'the stripe key for this restaurant'
                 }
             }
         }
@@ -133,9 +137,10 @@ def add_restaurant():
     name = data.get("name")
     latitude = data.get("latitude")
     longitude = data.get("longitude")
+    stripeKey = data.get("stripeKey")
 
-    insert_db('INSERT INTO restaurant (name, latitude, longitude, ownerID) VALUES (%s, %s, %s, %s)',
-              args=(name, latitude, longitude, ownerID))
+    insert_db('INSERT INTO restaurant (name, latitude, longitude, ownerID, stripeKey) VALUES (%s, %s, %s, %s, %s)',
+              args=(name, latitude, longitude, ownerID, stripeKey))
     return jsonify({"message": "Restaurant added successfully"}), 200
 
 
