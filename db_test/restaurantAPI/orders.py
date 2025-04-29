@@ -282,16 +282,22 @@ def mark_order_complete(orderID):
 
     hashed_key = hashlib.sha256(apikey.encode()).hexdigest()
 
-    storedkeys = query_db("""SELECT apikey
-                        FROM apikeys a
-                        JOIN restaurant r ON a.restaurantID = r.id
-                        JOIN orders o ON o.restaurantID = r.id
-                        WHERE o.id = %s AND o.isDeleted = false""",
-                        args=(orderID,))
-    
-    if not storedkeys:
+    order_details = query_db("""
+        SELECT o.restaurantID
+        FROM orders o
+        WHERE o.id = %s AND o.isDeleted = false
+    """, args=(orderID,), one=True)
+
+    if not order_details:
         return jsonify({"error": "Order not found"}), 404
     
+    restaurantID = order_details['restaurantid']
+    storedkeys = query_db("""
+        SELECT apikey
+        FROM apikeys
+        WHERE restaurantID = %s AND isDeleted = false
+    """, args=(restaurantID,))
+
     for storedkey in storedkeys:
         if storedkey['apikey'] == hashed_key:
             insert_db("UPDATE orders SET orderComplete = TRUE WHERE id = %s", args=(orderID,))
