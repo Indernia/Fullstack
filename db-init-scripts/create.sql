@@ -50,6 +50,7 @@ CREATE TABLE restaurant (
     openingtime TEXT,
     closingtime TEXT,
     description TEXT,
+    averageRating REAL DEFAULT 0,
     FOREIGN KEY (ownerID) REFERENCES AdminUser(id),
     FOREIGN KEY (theme) REFERENCES themes(name)
 );
@@ -66,7 +67,7 @@ CREATE TABLE apikeys (
 CREATE TABLE Rating (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5), 
-    restaurantID INTEGER NOT NULL,
+    restaurantid INTEGER NOT NULL,
     text TEXT,
     isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (restaurantID) REFERENCES Restaurant(id)
@@ -171,5 +172,29 @@ CREATE TABLE OrderIncludesMenuItem (
     FOREIGN KEY (orderID) REFERENCES orders(id),
     FOREIGN KEY (menuItemID) REFERENCES MenuItem(id)
 );
+
+CREATE OR REPLACE FUNCTION set_average_rating()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE restaurant
+    SET averagerating = (
+        SELECT AVG(rating)
+        FROM Rating
+    r   WHERE restaurantid = NEW.restaurantid AND isDeleted = FALSE
+    )
+    WHERE id = NEW.restaurantid;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE TRIGGER update_average_rating
+AFTER INSERT OR UPDATE OR DELETE ON rating
+FOR EACH ROW
+EXECUTE FUNCTION set_average_rating();
+
+
 
 

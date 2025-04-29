@@ -79,7 +79,7 @@ def get_orders():
     GROUP BY o.id
     """,
     args=(hashed_key,)
-)
+    )
     return jsonify(request_data)
 
 
