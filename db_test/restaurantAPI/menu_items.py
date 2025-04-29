@@ -249,10 +249,10 @@ def delete_menu_item(itemID):
     try:
         insert_db('UPDATE menuitem SET isDeleted = True WHERE id = %s', args=(itemID,))
 
-        menu_item = query_db('SELECT photoLink FROM menuitem WHERE id = %s', args=(itemID,), one=True)
+        menu_item = query_db('SELECT photolink FROM menuitem WHERE id = %s', args=(itemID,), one=True)
         
-        if menu_item and menu_item['photoLink']:
-            photo_link = menu_item['photoLink']     
+        if menu_item and menu_item['photolink']:
+            photo_link = menu_item['photolink']     
             specific_url = "https://jamnawmenu.blob.core.windows.net/menu-items/pexels-chanwalrus-958545.jpg"
             
             if photo_link == specific_url:
