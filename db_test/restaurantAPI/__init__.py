@@ -11,6 +11,7 @@ from .api_keys import api_keys_blueprint
 from .sas_url import sas_url_blueprint
 from .tags import tags_blueprint
 from .themes import themes_blueprint
+from .restaurant_tables import restaurant_tables_blueprint
 
 # Create a blueprint for the entire API to register it in `app.py`
 restaurant_api_blueprint = Blueprint('restaurantAPI', __name__)
@@ -28,3 +29,4 @@ restaurant_api_blueprint.register_blueprint(orders_blueprint)
 restaurant_api_blueprint.register_blueprint(sas_url_blueprint)
 restaurant_api_blueprint.register_blueprint(tags_blueprint)
 restaurant_api_blueprint.register_blueprint(themes_blueprint)
+restaurant_api_blueprint.register_blueprint(restaurant_tables_blueprint)
