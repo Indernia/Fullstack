@@ -157,10 +157,7 @@ CREATE TABLE orders (
     orderComplete BOOLEAN NOT NULL,
     comments TEXT,
     isDeleted BOOLEAN NOT NULL DEFAULT FALSE,
-<<<<<<< HEAD
-=======
     ispaid BOOLEAN NOT NULL DEFAULT FALSE,
->>>>>>> 3472a05 (added tags to get all menu items in section, and added paid flag in orders)
     FOREIGN KEY (userID) REFERENCES users(id),
     FOREIGN KEY (tableID) REFERENCES RestaurantTable(id),
     FOREIGN KEY (restaurantID) REFERENCES Restaurant(id)
