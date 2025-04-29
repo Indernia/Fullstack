@@ -174,7 +174,7 @@ def update_restaurant(restaurant_id):
     description = data.get("description")
     stripeKey = data.get("stripeKey")
 
-    if not name or not latitude or not longitude or not openingtime or not closingtime or not description or not stripeKey:
+    if not name or not latitude or not longitude or not stripeKey:
         return jsonify({"error": "Missing required fields"}), 400
 
     insert_db("UPDATE restaurant SET name = %s, latitude = %s, longitude = %s, openingtime = %s, closingtime = %s, description = %s, stripekey = %s WHERE id = %s", 
