@@ -235,23 +235,68 @@ def add_order():
 
 @orders_blueprint.route('/orders/markComplete/<orderID>/', methods=["PUT"])
 @swag_from({
-'tags': ['Orders'],
-'parameters': [{
-    'name': 'orderId',
-    'in': 'path',
-    'description': 'The ID of the order to mark as complete',
-    'required': True,
-    'type': 'integer'
-}],
-'responses': {
-    200: {
-        'description': 'Order marked as complete'
-    },
-    404: {
-        'description': 'Order not found'
-    }},
+    'tags': ['Orders'],
+    'parameters': [{
+        'name': 'orderId',
+        'in': 'path',
+        'description': 'The ID of the order to mark as complete',
+        'required': True,
+        'type': 'integer'
+    }],
+    'responses': {
+        200: {
+            'description': 'Order marked as complete',
+            'examples': {
+                'application/json': {
+                    'message': 'Order marked as complete'
+                }
+            }
+        },
+        401: {
+            'description': 'Unauthorized request due to incorrect API key or missing API key',
+            'examples': {
+                'application/json': {
+                    'error': 'Incorrect key given'
+                }
+            }
+        },
+        404: {
+            'description': 'Order not found',
+            'examples': {
+                'application/json': {
+                    'error': 'Order not found'
+                }
+            }
+        }
+    }
 })
 def mark_order_complete(orderID):
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return jsonify({"error": "Missing authorization header"}), 401
+
+    try:
+        apikey = auth_header.split(" ")[1]
+    except IndexError:
+        return jsonify({"error": "Invalid authorization header format"}), 401
+
+    hashed_key = hashlib.sha256(apikey.encode()).hexdigest()
+
+    storedkey = query_db("""SELECT apikey
+                        FROM apikeys a
+                        JOIN restaurant r ON a.restaurantID = r.id
+                        JOIN orders o ON o.restaurantID = r.id
+                        WHERE o.id = %s AND o.isDeleted = false""",
+                        args=(orderID,), one=True)
+    
+    if not storedkey:
+        return jsonify({"error": "Order not found"}), 404
+    
+    storedkey = storedkey['apikey']
+
+    if storedkey != hashed_key:
+        return jsonify({"message": "Incorrect key given"}), 401
+
     insert_db("UPDATE orders SET orderComplete = TRUE WHERE id = %s", args=(orderID,))
     return jsonify({"message": "Order marked as complete"}), 200
 
@@ -400,7 +445,7 @@ def create_checkout_session(orderID):
     for item in items:
         line_items.append({
             'price_data': {
-                'currency': 'usd',
+                'currency': 'dkk',
                 'unit_amount': int(item['price'] * 100),  # Convert price to cents (best practice)
                 'product_data': {
                     'name': item['name'],
@@ -414,7 +459,7 @@ def create_checkout_session(orderID):
         tip = data.get('tip')
         line_items.append({
             'price_data': {
-                'currency': 'usd',
+                'currency': 'dkk',
                 'unit_amount': int(tip * 100),
                 'product_data': {
                     'name': "tip",
