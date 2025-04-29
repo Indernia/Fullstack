@@ -3,7 +3,7 @@ from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required
 from azure.storage.blob import BlobServiceClient
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 import os
 
 menu_items_blueprint = Blueprint('menu_items', __name__)
@@ -261,6 +261,7 @@ def delete_menu_item(itemID):
             # 3. Parse the blob name from the full URL
             parsed_url = urlparse(photo_link)
             blob_name = parsed_url.path.split('menu-items/', 1)[-1]
+            blob_name = unquote(blob_name)
 
             container_name = "menu-items"
             account_name = os.getenv("AZURE_STORAGE_ACCOUNT")
