@@ -99,38 +99,67 @@ def get_all_restaurants():
 @jwt_required()
 @swag_from({
     'tags': ['Restaurants'],
+    'summary': 'Add a new restaurant',
+    'description': 'This endpoint allows adding a new restaurant. The name, latitude, and longitude are required fields. Other fields like openingTime, closingTime, description, and stripeKey are optional.',
+    'parameters': [
+        {
+            'name': 'body',
+            'in': 'body',
+            'description': 'The restaurant data to be added',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'name': {
+                        'type': 'string',
+                        'description': 'The name of the restaurant',
+                        'example': 'Pizza Palace'
+                    },
+                    'latitude': {
+                        'type': 'number',
+                        'format': 'float',
+                        'description': 'Latitude of the restaurant location',
+                        'example': 40.7128
+                    },
+                    'longitude': {
+                        'type': 'number',
+                        'format': 'float',
+                        'description': 'Longitude of the restaurant location',
+                        'example': -74.0060
+                    },
+                    'openingTime': {
+                        'type': 'string',
+                        'description': 'The opening time of the restaurant (optional)',
+                        'example': '09:00'
+                    },
+                    'closingTime': {
+                        'type': 'string',
+                        'description': 'The closing time of the restaurant (optional)',
+                        'example': '22:00'
+                    },
+                    'description': {
+                        'type': 'string',
+                        'description': 'A brief description of the restaurant (optional)',
+                        'example': 'A cozy place for pizza lovers'
+                    },
+                    'stripeKey': {
+                        'type': 'string',
+                        'description': 'The Stripe payment key for the restaurant (optional)',
+                    }
+                },
+                'required': ['name', 'latitude', 'longitude']
+            }
+        }
+    ],
     'responses': {
         200: {
             'description': 'Restaurant added successfully'
         },
         400: {
-            'description': 'Name, latitude, and longitude are required'
-        }},
-    'parameters': [{
-        'name': 'body',
-        'description': 'Restaurant object',
-        'in': 'body',
-        'schema': {
-            'properties': {
-                'name': {
-                    'type': 'string',
-                    'description': 'The name of the restaurant'
-                },
-                'latitude': {
-                    'type': 'number',
-                    'description': 'The latitude of the restaurant'
-                },
-                'longitude': {
-                    'type': 'number',
-                    'description': 'The longitude of the restaurant'
-                },
-                'stripeKey': {
-                    'type': 'string',
-                    'description': 'the stripe key for this restaurant'
-                }
-            }
+            'description': 'Bad request due to missing required fields (name, latitude, longitude)'
         }
-    }]})
+    }
+})
 def add_restaurant():
     ownerID = get_jwt_identity()["id"]
     data = request.get_json()
@@ -151,19 +180,77 @@ def add_restaurant():
 @jwt_required() 
 @swag_from({
     'tags': ['Restaurants'],
+    'summary': 'Update a restaurant by ID',
+    'description': 'This endpoint allows updating a restaurant\'s details. All fields are optional except for name, latitude, and longitude.',
+    'parameters': [
+        {
+            'name': 'restaurant_id',
+            'in': 'path',
+            'description': 'The ID of the restaurant to update',
+            'required': True,
+            'type': 'integer'
+        },
+        {
+            'name': 'body',
+            'in': 'body',
+            'description': 'The restaurant data to update',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'name': {
+                        'type': 'string',
+                        'description': 'The name of the restaurant',
+                        'example': 'Pizza Place'
+                    },
+                    'latitude': {
+                        'type': 'number',
+                        'format': 'float',
+                        'description': 'Latitude of the restaurant location',
+                        'example': 40.7128
+                    },
+                    'longitude': {
+                        'type': 'number',
+                        'format': 'float',
+                        'description': 'Longitude of the restaurant location',
+                        'example': -74.0060
+                    },
+                    'openingTime': {
+                        'type': 'string',
+                        'description': 'The opening time of the restaurant (optional)',
+                        'example': '09:00'
+                    },
+                    'closingTime': {
+                        'type': 'string',
+                        'description': 'The closing time of the restaurant (optional)',
+                        'example': '22:00'
+                    },
+                    'description': {
+                        'type': 'string',
+                        'description': 'A brief description of the restaurant (optional)',
+                        'example': 'A cozy place for pizza lovers'
+                    },
+                    'stripeKey': {
+                        'type': 'string',
+                        'description': 'The Stripe payment key for the restaurant (required)',
+                    }
+                },
+                'required': ['name', 'latitude', 'longitude', 'stripeKey']
+            }
+        }
+    ],
     'responses': {
         200: {
             'description': 'Restaurant updated successfully'
         },
         400: {
-            'description': 'Name, latitude, and longitude are required'
-        }},
-    'parameters': [{
-        'name': 'restaurant_id',
-        'description': 'The ID of the restaurant to update',
-        'type': 'integer',
-        'required': True
-    }]})
+            'description': 'Bad request due to missing required fields (name, latitude, longitude, stripeKey)'
+        },
+        404: {
+            'description': 'Restaurant not found with the provided ID'
+        }
+    }
+})
 def update_restaurant(restaurant_id):
     data = request.get_json()
     name = data.get("name")

@@ -13,42 +13,79 @@ orders_blueprint = Blueprint('orders', __name__)
 @orders_blueprint.route('/orders/byrestaurant', methods=["GET"])
 @swag_from({
     'tags': ['Orders'],
+    'summary': 'Get all orders for a specific restaurant',
+    'description': 'This endpoint retrieves all incomplete orders for a specific restaurant, based on the provided API key. The orders are grouped with their respective menu items.',
+    'parameters': [
+        {
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'API key for the restaurant (Bearer token format)',
+            'required': True,
+            'type': 'string',
+            'example': 'Bearer YOUR_API_KEY'
+        }
+    ],
     'responses': {
         200: {
-            'description': 'All orders for a restaurant',
+            'description': 'All orders for the restaurant retrieved successfully',
             'schema': {
-                'type': 'object',
-                'properties': {
-                    'orderId': {
-                        'type': 'integer',
-                        'description': 'The ID of the order'
-                    },
-                    'restaurantId': {
-                        'type': 'integer',
-                        'description': 'The ID of the restaurant this order is for'
-                    },
-                    'customerId': {
-                        'type': 'integer',
-                        'description': 'The ID of the customer who placed the order'
-                    },
-                    'orderTable': {
-                        'type': 'integer',
-                        'description': 'The table number the order is for'
-                    },
-                    'orderTotal': {
-                        'type': 'number',
-                        'description': 'The total cost of the order'
+                'type': 'array',
+                'items': {
+                    'type': 'object',
+                    'properties': {
+                        'orderId': {
+                            'type': 'integer',
+                            'description': 'The ID of the order'
+                        },
+                        'restaurantId': {
+                            'type': 'integer',
+                            'description': 'The ID of the restaurant this order is for'
+                        },
+                        'customerId': {
+                            'type': 'integer',
+                            'description': 'The ID of the customer who placed the order'
+                        },
+                        'orderTable': {
+                            'type': 'integer',
+                            'description': 'The table number the order is for'
+                        },
+                        'orderTotal': {
+                            'type': 'number',
+                            'description': 'The total cost of the order'
+                        },
+                        'menuItems': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'object',
+                                'properties': {
+                                    'menuItemId': {
+                                        'type': 'integer',
+                                        'description': 'The ID of the menu item'
+                                    },
+                                    'menuItemName': {
+                                        'type': 'string',
+                                        'description': 'The name of the menu item'
+                                    },
+                                    'menuItemPrice': {
+                                        'type': 'number',
+                                        'description': 'The price of the menu item'
+                                    }
+                                }
+                            },
+                            'description': 'List of menu items included in the order'
+                        }
                     }
                 }
             }
         },
         401: {
-            'description': 'Not autherized'
-            },
+            'description': 'Unauthorized access - Missing or invalid API key'
+        },
         404: {
-            'description': 'Orders not found'
-        }},
-    })
+            'description': 'No orders found for the given restaurant'
+        }
+    }
+})
 def get_orders():
     auth_header = request.headers.get("Authorization")
     if not auth_header:
@@ -263,12 +300,14 @@ stripe.api_key = os.getenv('STRIPE_API_KEY')
 @orders_blueprint.route('/orders/<int:orderID>/create-payment-session', methods=['POST'])
 @swag_from({
     'tags': ['Orders'],
+    'summary': 'Create a payment session for an order',
+    'description': 'This endpoint creates a Stripe payment session for an order. It optionally accepts a tip amount that can be added to the order total.',
     'parameters': [
         {
             'name': 'orderID',
             'in': 'path',
-            'type': 'integer',
             'required': True,
+            'type': 'integer',
             'description': 'ID of the order for which the payment session is being created.'
         },
         {
@@ -307,7 +346,7 @@ stripe.api_key = os.getenv('STRIPE_API_KEY')
                 'type': 'object',
                 'properties': {
                     'error': {
-                    'type': 'string',
+                        'type': 'string',
                         'example': "Order not found"
                     }
                 }

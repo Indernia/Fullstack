@@ -208,19 +208,19 @@ def update_menu_item(itemID):
 @swag_from({
     'tags': ['Menu Items'],
     'summary': 'Delete a menu item and its associated image from Blob Storage',
-    'description': 'This endpoint deletes a menu item and its associated image from Azure Blob Storage.',
+    'description': 'This endpoint deletes a menu item and its associated image from Azure Blob Storage. The menu item is marked as deleted in the database, and if the item has an image, the image is also deleted from Azure Blob Storage.',
     'parameters': [
         {
             'name': 'itemID',
             'in': 'path',
-            'description': 'The ID of the menu item to delete',
             'required': True,
-            'type': 'integer'
+            'type': 'integer',
+            'description': 'The ID of the menu item to delete.'
         }
     ],
     'responses': {
         '200': {
-            'description': 'Menu item and blob deleted successfully',
+            'description': 'Menu item and blob deleted successfully.',
             'schema': {
                 'type': 'object',
                 'properties': {
@@ -232,7 +232,7 @@ def update_menu_item(itemID):
             }
         },
         '500': {
-            'description': 'An error occurred while deleting the menu item or blob',
+            'description': 'An error occurred while deleting the menu item or blob.',
             'schema': {
                 'type': 'object',
                 'properties': {
