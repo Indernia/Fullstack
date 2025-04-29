@@ -93,7 +93,16 @@ def get_menu_item(itemID):
     ]
 })
 def get_menu_items_by_section(sectionID):
-    request_data = query_db("SELECT * FROM menuitem WHERE sectionID = %s AND isDeleted = False",
+    request_data = query_db(""" SELECT
+                                    menuitem.*,
+                                    json_agg(t) AS tags
+                                FROM
+                                menuitem
+                                LEFT JOIN menuitemhastag mit ON menuitem.id = mit.menuitemid
+                                LEFT JOIN tag t ON mit.tagid = t.id
+                                WHERE sectionID = %s AND menuitem.isDeleted = False
+                                GROUP BY menuitem.id
+                            """,
                             args=(sectionID,))
     return jsonify(request_data)
 
