@@ -85,7 +85,7 @@ def add_tag():
               """,
               args=(tagType, value, description)
               )
-    return jsonify("item added successfully")
+    return jsonify("tag added successfully")
 
 
 @tags_blueprint.route("/tags/delete/<tagID>/", methods=["DELETE"])
