@@ -1,11 +1,9 @@
 from flask import Blueprint, jsonify, request
-
 from database import query_db, insert_db
 from flasgger import swag_from
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
+from flask_jwt_extended import create_access_token
 from extensions import bcrypt
-
-
+import os
 
 admin_users_blueprint = Blueprint('admin_users', __name__)
 
@@ -55,6 +53,12 @@ def get_admin_user(adminID):
     }
 })
 def add_admin_user():
+    auth_header = request.headers.get("Authorization")
+    key = auth_header.split(" ")[1]
+    storedkey = os.getenv("ADMINKEY")
+    if key != storedkey:
+        return jsonify({"message": "Wrong key"}), 400
+
     data = request.get_json()
     name = data.get("name")
     email = data.get("email")
@@ -141,6 +145,12 @@ def admin_login():
     }
 })
 def update_admin_user(adminID):
+    auth_header = request.headers.get("Authorization")
+    key = auth_header.split(" ")[1]
+    storedkey = os.getenv("ADMINKEY")
+    if key != storedkey:
+        return jsonify({"message": "Wrong key"}), 400
+    
     data = request.get_json()
     name = data.get("name")
     email = data.get("email")
@@ -172,6 +182,12 @@ def update_admin_user(adminID):
     }
 })
 def delete_admin_user(adminID):
+    auth_header = request.headers.get("Authorization")
+    key = auth_header.split(" ")[1]
+    storedkey = os.getenv("ADMINKEY")
+    if key != storedkey:
+        return jsonify({"message": "Wrong key"}), 400
+    
     existing_user = query_db("SELECT id FROM adminuser WHERE id = %s", args=(adminID,), one=True)
     if not existing_user:
         return jsonify({"error": "Admin user not found"}), 404
