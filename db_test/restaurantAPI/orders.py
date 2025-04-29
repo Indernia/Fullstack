@@ -282,23 +282,28 @@ def mark_order_complete(orderID):
 
     hashed_key = hashlib.sha256(apikey.encode()).hexdigest()
 
-    storedkey = query_db("""SELECT apikey
-                        FROM apikeys a
-                        JOIN restaurant r ON a.restaurantID = r.id
-                        JOIN orders o ON o.restaurantID = r.id
-                        WHERE o.id = %s AND o.isDeleted = false""",
-                        args=(orderID,), one=True)
-    
-    if not storedkey:
+    order_details = query_db("""
+        SELECT o.restaurantID
+        FROM orders o
+        WHERE o.id = %s AND o.isDeleted = false
+    """, args=(orderID,), one=True)
+
+    if not order_details:
         return jsonify({"error": "Order not found"}), 404
     
-    storedkey = storedkey['apikey']
+    restaurantID = order_details['restaurantid']
+    storedkeys = query_db("""
+        SELECT apikey
+        FROM apikeys
+        WHERE restaurantID = %s AND isDeleted = false
+    """, args=(restaurantID,))
 
-    if storedkey != hashed_key:
-        return jsonify({"message": "Incorrect key given"}), 401
-
-    insert_db("UPDATE orders SET orderComplete = TRUE WHERE id = %s", args=(orderID,))
-    return jsonify({"message": "Order marked as complete"}), 200
+    for storedkey in storedkeys:
+        if storedkey['apikey'] == hashed_key:
+            insert_db("UPDATE orders SET orderComplete = TRUE WHERE id = %s", args=(orderID,))
+            return jsonify({"message": "Order marked as complete"}), 200
+        
+    return jsonify({"message": "Incorrect key given"}), 401
 
 @orders_blueprint.route('/orders/items/<orderId>/', methods=["GET"])
 @swag_from({
@@ -474,7 +479,7 @@ def create_checkout_session(orderID):
         session = stripe.checkout.Session.create(
             line_items=line_items,
             mode='payment',
-            success_url='http://130.225.170.52:10331/payment-success?session_id={CHECKOUT_SESSION_ID}',
+            success_url='http://130.225.170.52:10331/api/payment-success?session_id={CHECKOUT_SESSION_ID}&order_id='+ str(orderID),
             cancel_url='http://130.225.170.52:10331/payment-cancel',
             metadata={
                 'orderID': str(orderID),
