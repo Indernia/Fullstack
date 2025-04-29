@@ -445,7 +445,7 @@ def create_checkout_session(orderID):
     for item in items:
         line_items.append({
             'price_data': {
-                'currency': 'usd',
+                'currency': 'dkk',
                 'unit_amount': int(item['price'] * 100),  # Convert price to cents (best practice)
                 'product_data': {
                     'name': item['name'],
@@ -459,7 +459,7 @@ def create_checkout_session(orderID):
         tip = data.get('tip')
         line_items.append({
             'price_data': {
-                'currency': 'usd',
+                'currency': 'dkk',
                 'unit_amount': int(tip * 100),
                 'product_data': {
                     'name': "tip",
