@@ -345,7 +345,6 @@ def get_order_items(orderID):
     """, args=(orderID,))
     return jsonify(request_data)
 
-stripe.api_key = os.getenv('STRIPE_API_KEY')
 
 @orders_blueprint.route('/orders/<int:orderID>/create-payment-session', methods=['POST'])
 @swag_from({
