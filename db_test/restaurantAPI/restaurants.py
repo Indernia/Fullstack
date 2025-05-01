@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
+from extensions import encrypt
 import math
 
 
@@ -171,6 +172,12 @@ def add_restaurant():
     description = data.get("description")
     stripeKey = data.get("stripeKey")
 
+    if stripeKey:
+        stripeKey = encrypt(stripeKey)
+
+    if not name or not latitude or not longitude or not stripeKey:
+        return jsonify({"error": "Missing required fields"}), 400
+
     insert_db('INSERT INTO restaurant (name, latitude, longitude, ownerID, stripekey, openingtime, closingtime, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
               args=(name, latitude, longitude, ownerID, stripeKey, openingtime, closingtime, description))
     return jsonify({"message": "Restaurant added successfully"}), 200
@@ -261,8 +268,11 @@ def update_restaurant(restaurant_id):
     description = data.get("description")
     stripeKey = data.get("stripeKey")
 
+
     if not name or not latitude or not longitude or not stripeKey:
         return jsonify({"error": "Missing required fields"}), 400
+    
+    stripeKey = encrypt(stripeKey)
 
     insert_db("UPDATE restaurant SET name = %s, latitude = %s, longitude = %s, openingtime = %s, closingtime = %s, description = %s, stripekey = %s WHERE id = %s", 
               args=(name, latitude, longitude, openingtime, closingtime, description, stripeKey, restaurant_id))

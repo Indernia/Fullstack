@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from extensions import bcrypt
+from extensions import bcrypt, decrypt
 import stripe 
 import os
 import hashlib
@@ -428,7 +428,7 @@ def create_checkout_session(orderID):
         WHERE o.id = %s
     """, args=(orderID,), one=True)
     
-    stripe.api_key = result['stripekey']
+    stripe.api_key = decrypt(result['stripekey'])
 
     # Fetch associated menu items and their quantities
     items = query_db("""
