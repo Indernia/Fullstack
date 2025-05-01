@@ -490,7 +490,7 @@ def create_checkout_session(orderID):
     return jsonify({'checkout_url': session.url})
 
 
-@orders_blueprint.route('/orders/paymentStatus', methods=['POST'])
+@orders_blueprint.route('/orders/paymentStatus', methods=['PUT'])
 def update_payment_status():
     data = request.get_json()
     sessionID = data.get('sessionID')
@@ -503,7 +503,6 @@ def update_payment_status():
             orderID = session.metadata.get('orderID')
 
             insert_db("UPDATE orders SET isPaid = TRUE WHERE id = %s", args=(orderID,))
-
             return jsonify({'status': payment_status})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
