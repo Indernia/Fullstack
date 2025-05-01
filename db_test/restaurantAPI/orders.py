@@ -490,9 +490,23 @@ def create_checkout_session(orderID):
     return jsonify({'checkout_url': session.url})
 
 
+@orders_blueprint.route('/orders/paymentStatus', methods=['POST'])
+def update_payment_status():
+    data = request.get_json()
+    sessionID = data.get('sessionID')
 
+    try:
+        session = stripe.checkout.Session.retrieve(sessionID)
+        payment_status = session.payment_status
 
+        if payment_status == "paid":
+            orderID = session.metadata.get('orderID')
 
+            insert_db("UPDATE orders SET isPaid = TRUE WHERE id = %s", args=(orderID,))
+
+            return jsonify({'status': payment_status})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
 
