@@ -3,14 +3,14 @@ CREATE TABLE AdminUser (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     name TEXT NOT NULL,
     email TEXT NOT NULL,
-    password TEXT NOT NULL,
+    password TEXT NOT NULL
 );
 
 -- 2) "User"
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     name TEXT NOT NULL,
-    email TEXT NOT NULL,
+    email TEXT NOT NULL
 );
 
 -- 3) Tag
@@ -18,7 +18,7 @@ CREATE TABLE Tag (
     id SERIAL PRIMARY KEY,    -- Use SERIAL instead of AUTOINCREMENT
     tagType TEXT NOT NULL,
     tagValue TEXT NOT NULL,
-    tagDescription TEXT,
+    tagDescription TEXT
 );
 
 -- Theme
@@ -30,7 +30,7 @@ CREATE TABLE themes (
     text VARCHAR(7) NOT NULL,
     text2 VARCHAR(7) NOT NULL,
     accent1 VARCHAR(7) NOT NULL,
-    accent2 VARCHAR(7) NOT NULL,
+    accent2 VARCHAR(7) NOT NULL
 );
 
 -- 4) Restaurant
@@ -64,7 +64,7 @@ CREATE TABLE Rating (
     rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5), 
     restaurantid INTEGER NOT NULL,
     text TEXT,
-    FOREIGN KEY (restaurantID) REFERENCES Restaurant(id) ON DELETE CASCADE,
+    FOREIGN KEY (restaurantID) REFERENCES Restaurant(id) ON DELETE CASCADE
 );
 
 -- 7) Menu
