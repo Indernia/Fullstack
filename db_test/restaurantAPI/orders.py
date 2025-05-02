@@ -227,7 +227,7 @@ def add_order():
     
     totaltables = tables['totaltables']
     if orderTable > totaltables:
-        return({"message": "Table does not exist"}), 201
+        return({"message": "Table does not exist"}), 404
     
     orderID = insert_db("""INSERT INTO orders
                         (restaurantId, userID, tableID, orderCost, orderComplete, orderTime, comments)
