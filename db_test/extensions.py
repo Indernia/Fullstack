@@ -5,7 +5,7 @@ import os
 
 bcrypt = Bcrypt()
 jwt = JWTManager()
-fernet = Fernet(os.getenv['FERNET_KEY'])
+fernet = Fernet(os.getenv("FERNET_KEY"))
 
 
 def encrypt(value: str) -> str:
