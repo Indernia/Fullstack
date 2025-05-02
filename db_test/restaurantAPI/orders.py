@@ -102,7 +102,7 @@ def get_orders():
     WITH restaurant AS (
         SELECT restaurantID
         FROM apikeys
-        WHERE apikey = %s AND isDeleted = false
+        WHERE apikey = %s 
         LIMIT 1
     )
     SELECT

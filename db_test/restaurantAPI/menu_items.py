@@ -100,7 +100,7 @@ def get_menu_items_by_section(sectionID):
                                 menuitem
                                 LEFT JOIN menuitemhastag mit ON menuitem.id = mit.menuitemid
                                 LEFT JOIN tag t ON mit.tagid = t.id
-                                WHERE sectionID = %s AND menuitem.isDeleted = False
+                                WHERE sectionID = %s
                                 GROUP BY menuitem.id
                             """,
                             args=(sectionID,))

@@ -90,7 +90,7 @@ def get_restaurant(restaurantID):
 })
 def get_all_restaurants():
     try:
-        restaurants = query_db("SELECT * FROM restaurant WHERE isDeleted = false")
+        restaurants = query_db("SELECT * FROM restaurant")
         return jsonify(restaurants), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

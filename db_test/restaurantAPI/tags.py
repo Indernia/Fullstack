@@ -24,7 +24,6 @@ tags_blueprint = Blueprint('tags', __name__)
                         'tagType': {'type': 'string'},
                         'tagValue': {'type': 'string'},
                         'tagDescription': {'type': 'string'},
-                        'isDeleted': {'type': 'boolean'}
                     }
                 }
             }
@@ -33,7 +32,7 @@ tags_blueprint = Blueprint('tags', __name__)
 })
 def get_all_tags():
     tags = query_db("""
-                    SELECT * FROM tag WHERE isDeleted = false
+                    SELECT * FROM tag 
                     """)
     return jsonify(tags)
 
@@ -99,7 +98,6 @@ def add_tag():
 @swag_from({
     'tags': ['Tags'],
     'summary': 'Delete a tag',
-    'description': 'Marks a tag as deleted by setting its isDeleted flag to true using its ID.',
     'parameters': [
         {
             'name': 'tagID',
@@ -128,10 +126,9 @@ def delete_tag(tagID):
     storedkey = os.getenv("ADMINKEY")
     if key != storedkey:
         return jsonify({"message": "Wrong key"}), 400
-    
+
     insert_db("""
-                UPDATE tag
-                SET isDeleted = true
+              DELETE FROM tag
                 WHERE id = %s
               """,
               args=(tagID,)

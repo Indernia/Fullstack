@@ -35,7 +35,7 @@ restaurant_tables_blueprint = Blueprint('restaurant_tables', __name__)
     }
 })
 def get_table(tableID):
-    table = query_db('SELECT * FROM RestaurantTable WHERE id = %s AND isDeleted = False', args=(tableID,), one=True)
+    table = query_db('SELECT * FROM RestaurantTable WHERE id = %s', args=(tableID,), one=True)
     if not table:
         return jsonify({"error": "Table not found"}), 404
     return jsonify(table), 200
@@ -73,7 +73,7 @@ def get_table(tableID):
     }
 })
 def get_tables_by_restaurant(restaurantID):
-    tables = query_db('SELECT * FROM RestaurantTable WHERE restaurantID = %s AND isDeleted = False', args=(restaurantID,))
+    tables = query_db('SELECT * FROM RestaurantTable WHERE restaurantID = %s', args=(restaurantID,))
     return jsonify(tables), 200
 
 
@@ -174,7 +174,7 @@ def update_table(tableID):
 })
 def delete_table(tableID):
     try:
-        insert_db('UPDATE RestaurantTable SET isDeleted = True WHERE id = %s', args=(tableID,))
+        insert_db('DELETE FROM RestaurantTable WHERE id = %s', args=(tableID,))
         return jsonify({"message": "Table deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
