@@ -512,6 +512,8 @@ def update_payment_status():
 
             insert_db("UPDATE orders SET isPaid = TRUE WHERE id = %s", args=(orderID,))
             return jsonify({'status': payment_status})
+        else: 
+            return jsonify({'status': "unpaid"})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
