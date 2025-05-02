@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request
 from database import query_db, insert_db
 from flasgger import swag_from
-
+from flask_jwt_extended import jwt_required, get_jwt_identity
+import os
 
 tags_blueprint = Blueprint('tags', __name__)
 
@@ -72,6 +73,12 @@ def get_all_tags():
     }
 })
 def add_tag():
+    auth_header = request.headers.get("Authorization")
+    key = auth_header.split(" ")[1]
+    storedkey = os.getenv("ADMINKEY")
+    if key != storedkey:
+        return jsonify({"message": "Wrong key"}), 400
+    
     data = request.get_json()
     tagType = data["tagType"]
     value = data["tagValue"]
@@ -116,6 +123,12 @@ def add_tag():
     }
 })
 def delete_tag(tagID):
+    auth_header = request.headers.get("Authorization")
+    key = auth_header.split(" ")[1]
+    storedkey = os.getenv("ADMINKEY")
+    if key != storedkey:
+        return jsonify({"message": "Wrong key"}), 400
+    
     insert_db("""
                 UPDATE tag
                 SET isDeleted = true
@@ -127,6 +140,7 @@ def delete_tag(tagID):
 
 
 @tags_blueprint.route("/tags/addTagToItem/", methods=["POST"])
+@jwt_required()
 @swag_from({
     'tags': ['Tags'],
     'summary': 'Add a tag to a menu item',
@@ -176,6 +190,7 @@ def add_tag_to_item():
 
 
 @tags_blueprint.route("/tags/removeTagFromItem/", methods=["DELETE"])
+@jwt_required()
 @swag_from({
     'tags': ['Tags'],
     'summary': 'Remove a tag from a menu item',

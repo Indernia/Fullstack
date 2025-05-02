@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from extensions import bcrypt
+from extensions import bcrypt, decrypt
 import stripe 
 import os
 import hashlib
@@ -345,7 +345,6 @@ def get_order_items(orderID):
     """, args=(orderID,))
     return jsonify(request_data)
 
-stripe.api_key = os.getenv('STRIPE_API_KEY')
 
 @orders_blueprint.route('/orders/<int:orderID>/create-payment-session', methods=['POST'])
 @swag_from({
@@ -429,7 +428,7 @@ def create_checkout_session(orderID):
         WHERE o.id = %s
     """, args=(orderID,), one=True)
     
-    stripe.api_key = result['stripekey']
+    stripe.api_key = decrypt(result['stripekey'])
 
     # Fetch associated menu items and their quantities
     items = query_db("""
@@ -479,7 +478,7 @@ def create_checkout_session(orderID):
         session = stripe.checkout.Session.create(
             line_items=line_items,
             mode='payment',
-            success_url='http://130.225.170.52:10331/api/payment-success?session_id={CHECKOUT_SESSION_ID}&order_id='+ str(orderID),
+            success_url='http://130.225.170.52:10331/payment-success?session_id={CHECKOUT_SESSION_ID}',
             cancel_url='http://130.225.170.52:10331/payment-cancel',
             metadata={
                 'orderID': str(orderID),
@@ -491,9 +490,22 @@ def create_checkout_session(orderID):
     return jsonify({'checkout_url': session.url})
 
 
+@orders_blueprint.route('/orders/paymentStatus', methods=['PUT'])
+def update_payment_status():
+    data = request.get_json()
+    sessionID = data.get('sessionID')
 
+    try:
+        session = stripe.checkout.Session.retrieve(sessionID)
+        payment_status = session.payment_status
 
+        if payment_status == "paid":
+            orderID = session.metadata.get('orderID')
 
+            insert_db("UPDATE orders SET isPaid = TRUE WHERE id = %s", args=(orderID,))
+            return jsonify({'status': payment_status})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
 

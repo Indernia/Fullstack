@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
+from extensions import encrypt
 import math
 
 
@@ -145,9 +146,13 @@ def get_all_restaurants():
                     'stripeKey': {
                         'type': 'string',
                         'description': 'The Stripe payment key for the restaurant (optional)',
+                    },
+                        'totaltables': {
+                        'type': 'int',
+                        'description': 'the total amount of tables in a restaurant starting from 1 (required)',
                     }
                 },
-                'required': ['name', 'latitude', 'longitude']
+                'required': ['name', 'latitude', 'longitude', 'stripekey', 'totaltables']
             }
         }
     ],
@@ -170,9 +175,15 @@ def add_restaurant():
     closingtime = data.get("closingTime")
     description = data.get("description")
     stripeKey = data.get("stripeKey")
+    totaltables = data.get("totaltables")
 
-    insert_db('INSERT INTO restaurant (name, latitude, longitude, ownerID, stripekey, openingtime, closingtime, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
-              args=(name, latitude, longitude, ownerID, stripeKey, openingtime, closingtime, description))
+    if not name or not latitude or not longitude or not stripeKey or not totaltables:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    stripeKey = encrypt(stripeKey)
+
+    insert_db('INSERT INTO restaurant (name, latitude, longitude, ownerID, stripekey, openingtime, closingtime, description, totaltables) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
+              args=(name, latitude, longitude, ownerID, stripeKey, openingtime, closingtime, description, totaltables))
     return jsonify({"message": "Restaurant added successfully"}), 200
 
 
@@ -232,10 +243,14 @@ def add_restaurant():
                     },
                     'stripeKey': {
                         'type': 'string',
-                        'description': 'The Stripe payment key for the restaurant (required)',
+                        'description': 'The Stripe payment key for the restaurant (optional)',
+                    },
+                        'totaltables': {
+                        'type': 'int',
+                        'description': 'the total amount of tables in a restaurant starting from 1 (required)',
                     }
                 },
-                'required': ['name', 'latitude', 'longitude', 'stripeKey']
+                'required': ['name', 'latitude', 'longitude', 'stripeKey', 'totaltables']
             }
         }
     ],
@@ -260,12 +275,19 @@ def update_restaurant(restaurant_id):
     closingtime = data.get("closingTime")
     description = data.get("description")
     stripeKey = data.get("stripeKey")
+    totaltables = data.get("totaltables")
 
-    if not name or not latitude or not longitude or not stripeKey:
+
+    if not name or not latitude or not longitude or not totaltables:
         return jsonify({"error": "Missing required fields"}), 400
+    
+    if not stripeKey:
+            insert_db("UPDATE restaurant SET name = %s, latitude = %s, longitude = %s, openingtime = %s, closingtime = %s, description = %s, totaltables = %s WHERE id = %s", 
+              args=(name, latitude, longitude, openingtime, closingtime, description, restaurant_id, totaltables))
+    stripeKey = encrypt(stripeKey)
 
-    insert_db("UPDATE restaurant SET name = %s, latitude = %s, longitude = %s, openingtime = %s, closingtime = %s, description = %s, stripekey = %s WHERE id = %s", 
-              args=(name, latitude, longitude, openingtime, closingtime, description, stripeKey, restaurant_id))
+    insert_db("UPDATE restaurant SET name = %s, latitude = %s, longitude = %s, openingtime = %s, closingtime = %s, description = %s, stripekey = %s, totaltables = %s WHERE id = %s", 
+              args=(name, latitude, longitude, openingtime, closingtime, description, stripeKey, restaurant_id, totaltables))
     return jsonify({"message": "Restaurant updated successfully"}), 200
 
 
