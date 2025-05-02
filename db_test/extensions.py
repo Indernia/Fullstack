@@ -19,7 +19,8 @@ def decrypt(value: str) -> str:
 
 def send_order_confirmation(to_email, order, line_items):
     from_email = os.getenv("GOOGLE_MAIL")
-    password = os.getenv("GOOGLE_PASSWORD")
+    #password = os.getenv("GOOGLE_PASSWORD")
+    password = "p5zMW*K9YbXd$%6s"
 
     subject = "Your Order Confirmation"
     item_lines = []
@@ -45,9 +46,7 @@ def send_order_confirmation(to_email, order, line_items):
     {items_text}
 
     Total: ${total:.2f}
-
-    We appreciate your business!
-
+    
     Best regards,
     jamnaw
     """
