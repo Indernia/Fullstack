@@ -256,7 +256,7 @@ def update_menu_item(itemID):
 })
 def delete_menu_item(itemID):
     try:
-        insert_db('UPDATE menuitem SET isDeleted = True WHERE id = %s', args=(itemID,))
+        insert_db('DELETE FROM menuitem WHERE id = %s', args=(itemID,))
 
         menu_item = query_db('SELECT photolink FROM menuitem WHERE id = %s', args=(itemID,), one=True)
         

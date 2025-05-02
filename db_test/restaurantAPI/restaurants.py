@@ -289,7 +289,7 @@ def update_restaurant(restaurant_id):
 })
 def delete_restaurant(restaurantID):
     try:
-        insert_db('UPDATE restaurant SET isdeleted = true WHERE id = %s', args=(restaurantID,))
+        insert_db('DELETE FROM restaurant WHERE id = %s', args=(restaurantID,))
         return jsonify({"message": "Restaurant deleted successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
