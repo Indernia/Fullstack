@@ -222,7 +222,9 @@ def add_order():
         print(orderTotal)
     
     tables = query_db("SELECT totaltables FROM restaurant WHERE id = %s", args=(restaurantId,))
-    if orderTable > tables:
+    totaltables = tables['totaltables']
+
+    if orderTable > totaltables:
         return({"message": "Table does not exist"}), 201
     
     orderID = insert_db("""INSERT INTO orders
