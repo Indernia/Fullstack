@@ -149,7 +149,7 @@ def get_all_restaurants():
                     },
                         'totaltables': {
                         'type': 'int',
-                        'description': 'the total amount of tables in a restaurant starting from 1',
+                        'description': 'the total amount of tables in a restaurant starting from 1 (required)',
                     }
                 },
                 'required': ['name', 'latitude', 'longitude', 'stripekey', 'totaltables']
@@ -244,11 +244,11 @@ def add_restaurant():
                     },
                     'stripeKey': {
                         'type': 'string',
-                        'description': 'The Stripe payment key for the restaurant (required)',
+                        'description': 'The Stripe payment key for the restaurant (optional)',
                     },
                         'totaltables': {
                         'type': 'int',
-                        'description': 'the total amount of tables in a restaurant starting from 1',
+                        'description': 'the total amount of tables in a restaurant starting from 1 (required)',
                     }
                 },
                 'required': ['name', 'latitude', 'longitude', 'stripeKey', 'totaltables']
@@ -279,9 +279,12 @@ def update_restaurant(restaurant_id):
     totaltables = data.get("totaltables")
 
 
-    if not name or not latitude or not longitude or not stripeKey or not totaltables:
+    if not name or not latitude or not longitude or not totaltables:
         return jsonify({"error": "Missing required fields"}), 400
     
+    if not stripeKey:
+            insert_db("UPDATE restaurant SET name = %s, latitude = %s, longitude = %s, openingtime = %s, closingtime = %s, description = %s, totaltables = %s WHERE id = %s", 
+              args=(name, latitude, longitude, openingtime, closingtime, description, restaurant_id, totaltables))
     stripeKey = encrypt(stripeKey)
 
     insert_db("UPDATE restaurant SET name = %s, latitude = %s, longitude = %s, openingtime = %s, closingtime = %s, description = %s, stripekey = %s, totaltables = %s WHERE id = %s", 
