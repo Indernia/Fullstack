@@ -165,6 +165,7 @@ def update_admin_user(adminID):
     insert_db("UPDATE adminuser SET name = %s, email = %s, password = %s WHERE id = %s", args=(name, email, hashed_password, adminID))
     return jsonify({"message": "Admin user updated successfully"}), 200
 
+
 @admin_users_blueprint.route('/adminUsers/<int:adminID>', methods=["DELETE"])
 @swag_from({
     'tags': ['Admin Users'],
