@@ -177,11 +177,10 @@ def add_restaurant():
     stripeKey = data.get("stripeKey")
     totaltables = data.get("totaltables")
 
-    if stripeKey:
-        stripeKey = encrypt(stripeKey)
-
     if not name or not latitude or not longitude or not stripeKey or not totaltables:
         return jsonify({"error": "Missing required fields"}), 400
+
+    stripeKey = encrypt(stripeKey)
 
     insert_db('INSERT INTO restaurant (name, latitude, longitude, ownerID, stripekey, openingtime, closingtime, description, totaltables) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',
               args=(name, latitude, longitude, ownerID, stripeKey, openingtime, closingtime, description, totaltables))
