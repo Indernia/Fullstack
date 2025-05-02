@@ -283,7 +283,7 @@ def update_restaurant(restaurant_id):
     
     if not stripeKey:
             insert_db("UPDATE restaurant SET name = %s, latitude = %s, longitude = %s, openingtime = %s, closingtime = %s, description = %s, totaltables = %s WHERE id = %s", 
-              args=(name, latitude, longitude, openingtime, closingtime, description, restaurant_id, totaltables))
+              args=(name, latitude, longitude, openingtime, closingtime, description, totaltables, restaurant_id))
             return jsonify({"message": "Restaurant updated successfully"}), 200
     
     stripeKey = encrypt(stripeKey)
