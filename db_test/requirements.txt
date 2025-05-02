@@ -7,3 +7,4 @@ Flask-Bcrypt
 Flask-JWT-Extended
 azure-storage-blob
 stripe
+cryptography
