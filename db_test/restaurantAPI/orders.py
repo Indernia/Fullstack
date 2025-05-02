@@ -513,7 +513,7 @@ def update_payment_status():
             insert_db("UPDATE orders SET isPaid = TRUE WHERE id = %s", args=(orderID,))
             line_items = stripe.checkout.Session.list_line_items(sessionID)
             email = session.customer_details.email
-            send_order_confirmation(email,)
+            send_order_confirmation(email,orderID,line_items)
             return jsonify({'status': payment_status})
         else: 
             return jsonify({'status': "unpaid"})
