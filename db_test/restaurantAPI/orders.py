@@ -425,7 +425,7 @@ def get_order_items(orderID):
 })
 def create_checkout_session(orderID):
     data = request.get_json()
-    order = query_db("SELECT * FROM orders WHERE id = %s", args=(orderID,))
+    order = query_db("SELECT * FROM orders WHERE id = %s AND isPaid = false", args=(orderID,))
     if not order:
         return jsonify({"error": "Order not found"}), 404
     
