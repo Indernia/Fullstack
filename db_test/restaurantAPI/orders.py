@@ -223,11 +223,11 @@ def add_order():
     
     tables = query_db("SELECT totaltables FROM restaurant WHERE id = %s", args=(restaurantId,), one=True)
     if not tables:
-        return {"message": "Restaurant not found"}, 404
+        return jsonify({"message": "Restaurant not found"}), 404
     
     totaltables = tables['totaltables']
     if orderTable > totaltables:
-        return({"message": "Table does not exist"}), 404
+        return jsonify({"message": "Table does not exist"}), 404
     
     orderID = insert_db("""INSERT INTO orders
                         (restaurantId, userID, tableID, orderCost, orderComplete, orderTime, comments)
