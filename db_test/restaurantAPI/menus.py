@@ -42,7 +42,7 @@ menus_blueprint = Blueprint('menus', __name__)
             }
         ]})
 def get_menu(menuID):
-    request_data = query_db("SELECT * FROM menu WHERE id = %s AND isDeleted = false", args=(menuID,))
+    request_data = query_db("SELECT * FROM menu WHERE id = %s", args=(menuID,))
     return jsonify(request_data)
 
 @menus_blueprint.route('/menus/restaurant/<restaurantID>', methods=["GET"])
@@ -79,7 +79,7 @@ def get_menu(menuID):
     }
 })
 def get_menus_by_restaurant(restaurantID):
-    request_data = query_db("SELECT * FROM menu WHERE restaurantID = %s AND isDeleted = false", args=(restaurantID,))
+    request_data = query_db("SELECT * FROM menu WHERE restaurantID = %s", args=(restaurantID,))
     
     if not request_data:
         return jsonify({"error": "No menus found for this restaurant"}), 404

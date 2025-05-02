@@ -166,7 +166,7 @@ BEGIN
     SET averagerating = (
         SELECT AVG(rating)
         FROM Rating
-    r   WHERE restaurantid = NEW.restaurantid AND isDeleted = FALSE
+    r   WHERE restaurantid = NEW.restaurantid 
     )
     WHERE id = NEW.restaurantid;
     

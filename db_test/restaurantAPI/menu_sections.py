@@ -100,7 +100,7 @@ def add_menu_section():
     ]
 })
 def get_menu_sections_by_menu(menuID):
-    request_data = query_db("SELECT * FROM menusection WHERE menuID = %s AND isDeleted = false", args=(menuID,))
+    request_data = query_db("SELECT * FROM menusection WHERE menuID = %s ", args=(menuID,))
     return jsonify(request_data)
 
 @menu_sections_blueprint.route('/menuSections/<sectionID>/update', methods=["PUT"])

@@ -102,7 +102,7 @@ def get_orders():
     WITH restaurant AS (
         SELECT restaurantID
         FROM apikeys
-        WHERE apikey = %s AND isDeleted = false
+        WHERE apikey = %s 
         LIMIT 1
     )
     SELECT
@@ -285,7 +285,7 @@ def mark_order_complete(orderID):
     order_details = query_db("""
         SELECT o.restaurantID
         FROM orders o
-        WHERE o.id = %s AND o.isDeleted = false
+        WHERE o.id = %s
     """, args=(orderID,), one=True)
 
     if not order_details:
@@ -295,7 +295,7 @@ def mark_order_complete(orderID):
     storedkeys = query_db("""
         SELECT apikey
         FROM apikeys
-        WHERE restaurantID = %s AND isDeleted = false
+        WHERE restaurantID = %s
     """, args=(restaurantID,))
 
     for storedkey in storedkeys:
