@@ -55,7 +55,9 @@ jobs:
             export AZURE_STORAGE_ACCOUNT=${{ secrets.AZURE_STORAGE_ACCOUNT }}
             export AZURE_STORAGE_ACCESS_KEY=${{ secrets.AZURE_STORAGE_ACCESS_KEY }}
             export ADMINKEY=${{ secrets.ADMINKEY }}
-            export FERNET_KEY=${{ secrets.FERNET_KEY}}
+            export FERNET_KEY=${{ secrets.FERNET_KEY }}
+            export GOOGLE_MAIL=${{ secrets.GOOGLE_MAIL }}
+            export GOOGLE_PASSWORD=${{ secrets.GOOGLE_PASSWORD }}
             
             # Pull the latest image
             docker pull ${{ secrets.DOCKER_USERNAME }}/backend-flask-app:latest
