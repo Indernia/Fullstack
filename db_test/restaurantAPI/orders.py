@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from extensions import bcrypt, decrypt
+from extensions import bcrypt, decrypt, send_order_confirmation
 import stripe 
 import os
 import hashlib
@@ -511,6 +511,9 @@ def update_payment_status():
             orderID = session.metadata.get('orderID')
 
             insert_db("UPDATE orders SET isPaid = TRUE WHERE id = %s", args=(orderID,))
+            line_items = stripe.checkout.Session.list_line_items(sessionID)
+            email = session.customer_details.email
+            send_order_confirmation(email,)
             return jsonify({'status': payment_status})
         else: 
             return jsonify({'status': "unpaid"})
