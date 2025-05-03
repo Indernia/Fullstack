@@ -27,10 +27,10 @@ def send_order_confirmation(to_email, order, line_items):
     for item in line_items.data:
         name = item.description
         quantity = item.quantity
-        amount_each = item.price.unit_amount / 100  # Convert cents to dollars
+        amount_each = item.price.unit_amount / 100  
         subtotal = amount_each * quantity
         total += subtotal
-        item_lines.append(f"- {name} x{quantity} = ${subtotal:.2f}")
+        item_lines.append(f"- {name} x{quantity} = {subtotal:.2f}kr")
 
     items_text = "\n".join(item_lines)
 

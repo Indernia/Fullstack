@@ -474,7 +474,7 @@ def create_checkout_session(orderID):
                 'currency': 'dkk',
                 'unit_amount': int(tip * 100),
                 'product_data': {
-                    'name': "tip",
+                    'name': "Tip",
                     'description': "Tip for the staff"
                 },
             },
