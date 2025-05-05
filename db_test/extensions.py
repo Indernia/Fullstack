@@ -41,8 +41,7 @@ def send_order_confirmation(to_email, order, line_items):
 
     Your order (ID: {order}) has been confirmed.
 
-    Order Summary:
-    {items_text}
+    Order Summary:{items_text}
 
     Total: {total:.2f} kr.
     
