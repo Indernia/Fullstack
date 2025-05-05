@@ -30,7 +30,7 @@ def send_order_confirmation(to_email, order, line_items):
         amount_each = item.price.unit_amount / 100  
         subtotal = amount_each * quantity
         total += subtotal
-        item_lines.append(f"- {name} x{quantity} = {subtotal:.2f}kr")
+        item_lines.append(f"- {name} x{quantity} = {subtotal:.2f} kr.")
 
     items_text = "\n".join(item_lines)
 
@@ -44,7 +44,7 @@ def send_order_confirmation(to_email, order, line_items):
     Order Summary:
     {items_text}
 
-    Total: ${total:.2f}
+    Total: {total:.2f} kr.
     
     Best regards,
     jamnaw
