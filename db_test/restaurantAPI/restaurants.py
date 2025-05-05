@@ -394,7 +394,10 @@ def get_closest_10_restaurants():
     radius_km = float(request.args.get('radius_km', 10))
     min_lat, max_lat, min_lon, max_lon = get_bounding_box(lat, lon, radius_km)
 
-    restaurants = query_db("SELECT * FROM restaurant WHERE latitude BETWEEN %s AND %s AND longitude BETWEEN %s AND %s",
+    restaurants = query_db("""SELECT id, ownerID, name, latitude, longitude, theme, openingtime, 
+                           closingtime, description, averageRating, totaltables 
+                           FROM restaurant 
+                           WHERE latitude BETWEEN %s AND %s AND longitude BETWEEN %s AND %s""",
                            args=(min_lat, max_lat, min_lon, max_lon))
     restaurants = sorted(restaurants, key=lambda x: haversine(lat, lon, x['latitude'], x['longitude']))
     return jsonify(restaurants[:10])
