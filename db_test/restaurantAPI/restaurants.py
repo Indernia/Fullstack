@@ -303,7 +303,7 @@ def update_restaurant(restaurant_id):
     stripeKey = encrypt(stripeKey)
 
     insert_db("UPDATE restaurant SET name = %s, latitude = %s, longitude = %s, openingtime = %s, closingtime = %s, description = %s, stripekey = %s, totaltables = %s WHERE id = %s", 
-              args=(name, latitude, longitude, openingtime, closingtime, description, stripeKey, restaurant_id, totaltables))
+              args=(name, latitude, longitude, openingtime, closingtime, description, stripeKey, totaltables, restaurant_id))
     return jsonify({"message": "Restaurant updated successfully"}), 200
 
 
