@@ -154,7 +154,7 @@ def get_orders():
     })
 def get_order(orderId):
     request_data = query_db("SELECT * FROM orders WHERE id = %s AND orderComplete = false"
-                            , args=(orderId))
+                            , args=(orderId,))
     return jsonify(request_data)
 
 
