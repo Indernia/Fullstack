@@ -49,7 +49,15 @@ restaurants_blueprint = Blueprint('restaurants', __name__)
             }
         ]})
 def get_restaurant(restaurantID):
-    request_data = query_db("SELECT * FROM restaurant WHERE id = %s AND column_name NOT IN ('stripekey')", args=(restaurantID,))
+    request_data = query_db(
+        """
+        SELECT id, ownerID, name, latitude, longitude, theme, openingtime,
+            closingtime, description, averageRating, totaltables
+        FROM restaurant
+        WHERE id = %s
+        """,
+        args=(restaurantID,)
+    )
     return jsonify(request_data)
 
 @restaurants_blueprint.route('/restaurants', methods=["GET"])
@@ -90,7 +98,13 @@ def get_restaurant(restaurantID):
 })
 def get_all_restaurants():
     try:
-        restaurants = query_db("SELECT * FROM restaurant WHERE column_name NOT IN ('stripekey')")
+        restaurants = query_db(
+            """
+            SELECT id, ownerID, name, latitude, longitude, theme, openingtime,
+                closingtime, description, averageRating, totaltables
+            FROM restaurant
+            """
+        )        
         return jsonify(restaurants), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
