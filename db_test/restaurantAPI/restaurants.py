@@ -444,25 +444,6 @@ def haversine(lat1, lon1, lat2, lon2):
     return rad * c
 
 
-@restaurants_blueprint.route('/restaurants/theme/<themename>', methods=["GET"])
-@swag_from({
-        'description': "an endpoint for getting a specific theme",
-        'tag': ['Restaurants']
-    })
-def get_restaurant_theme(themename):
-    theme = query_db("SELECT * FROM themes WHERE name = %s", args=(themename,), one=True)
-    print(theme)
-    return jsonify(theme)
-
-
-@restaurants_blueprint.route('/restaurants/themes', methods=["GET"])
-@swag_from({
-        'description': "an endpoint for getting all themes",
-        'tag': ['Restaurants']
-    })
-def get_all_restaurant_themes():
-    names = query_db("SELECT name FROM themes")
-    return jsonify(names)
 
 
 
