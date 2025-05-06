@@ -3,6 +3,7 @@ from database import query_db, insert_db
 from flasgger import swag_from
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
 from extensions import encrypt
+import stripe
 import math
 
 
@@ -166,7 +167,7 @@ def get_all_restaurants():
                         'description': 'the total amount of tables in a restaurant starting from 1 (required)',
                     }
                 },
-                'required': ['name', 'latitude', 'longitude', 'stripekey', 'totaltables']
+                'required': ['name', 'latitude', 'longitude', 'stripeKey', 'totaltables']
             }
         }
     ],
@@ -193,6 +194,14 @@ def add_restaurant():
 
     if not name or not latitude or not longitude or not stripeKey or not totaltables:
         return jsonify({"error": "Missing required fields"}), 400
+
+    stripe.api_key = stripeKey
+    try:
+        stripe.Account.retrieve()
+    except stripe.error.AuthenticationError:
+        return jsonify({"message": "Invalid stripe key"}), 401
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {e}"}), 500
 
     stripeKey = encrypt(stripeKey)
 
@@ -264,7 +273,7 @@ def add_restaurant():
                         'description': 'the total amount of tables in a restaurant starting from 1 (required)',
                     }
                 },
-                'required': ['name', 'latitude', 'longitude', 'stripeKey', 'totaltables']
+                'required': ['name', 'latitude', 'longitude', 'totaltables']
             }
         }
     ],
@@ -299,6 +308,14 @@ def update_restaurant(restaurant_id):
             insert_db("UPDATE restaurant SET name = %s, latitude = %s, longitude = %s, openingtime = %s, closingtime = %s, description = %s, totaltables = %s WHERE id = %s", 
               args=(name, latitude, longitude, openingtime, closingtime, description, totaltables, restaurant_id))
             return jsonify({"message": "Restaurant updated successfully"}), 200
+    
+    stripe.api_key = stripeKey
+    try:
+        stripe.Account.retrieve()
+    except stripe.error.AuthenticationError:
+        return jsonify({"message": "Invalid stripe key"}), 401
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {e}"}), 500
     
     stripeKey = encrypt(stripeKey)
 
