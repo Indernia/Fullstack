@@ -106,8 +106,7 @@ def admin_login():
 
     user = query_db("SELECT id, password FROM AdminUser WHERE email = %s", args=(email,), one=True)
 
-    print(data)
-    print(user)
+
     if not user or not bcrypt.check_password_hash(user['password'], password):
         return jsonify({"error": "email or password may be incorrect"}), 401
 
