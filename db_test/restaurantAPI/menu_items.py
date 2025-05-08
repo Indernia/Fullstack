@@ -256,8 +256,6 @@ def update_menu_item(itemID):
 })
 def delete_menu_item(itemID):
     try:
-        insert_db('DELETE FROM menuitem WHERE id = %s', args=(itemID,))
-
         menu_item = query_db('SELECT photolink FROM menuitem WHERE id = %s', args=(itemID,), one=True)
         
         if menu_item and menu_item['photolink']:
@@ -289,7 +287,7 @@ def delete_menu_item(itemID):
 
             # Delete the blob
             blob_client.delete_blob()
-
+        insert_db('DELETE FROM menuitem WHERE id = %s', args=(itemID,))
         return jsonify({"message": "Menu Item deleted successfully and blob storage"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
