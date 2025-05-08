@@ -263,6 +263,7 @@ def delete_menu_item(itemID):
             specific_url = "https://jamnawmenu.blob.core.windows.net/menu-items/pexels-chanwalrus-958545.jpg"
             
             if photo_link == specific_url:
+                insert_db('DELETE FROM menuitem WHERE id = %s', args=(itemID,))
                 return jsonify({"message": "Menu Item deleted successfully"}), 200
             
             # 3. Parse the blob name from the full URL
