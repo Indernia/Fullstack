@@ -486,8 +486,8 @@ def create_checkout_session(orderID):
         session = stripe.checkout.Session.create(
             line_items=line_items,
             mode='payment',
-            success_url='http://130.225.170.52:10331/payment-success?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url='http://130.225.170.52:10331/payment-success?session_id={CHECKOUT_SESSION_ID}',
+            success_url='https://130.225.170.52:10332/payment-success?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url='https://130.225.170.52:10332/payment-success?session_id={CHECKOUT_SESSION_ID}',
             metadata={
                 'orderID': str(orderID),
             }
