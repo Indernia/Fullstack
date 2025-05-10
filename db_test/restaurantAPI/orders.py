@@ -502,21 +502,25 @@ def create_checkout_session(orderID):
 def update_payment_status():
     data = request.get_json()
     sessionID = data.get('sessionID')
-
+    if not sessionID:
+        return jsonify({'message': 'Missing sessionID'}), 400
     try:
         session = stripe.checkout.Session.retrieve(sessionID)
+        orderID = session.metadata.get('orderID')
         payment_status = session.payment_status
 
-        if payment_status == "paid":
-            orderID = session.metadata.get('orderID')
+        order = query_db("SELECT * FROM orders WHERE id = %s AND isPaid = true", args=(orderID,), one=True)
+        if order['ispaid']:
+            return jsonify({'status': "paid"}), 200
 
+        if payment_status == "paid":
             insert_db("UPDATE orders SET isPaid = TRUE WHERE id = %s", args=(orderID,))
             line_items = stripe.checkout.Session.list_line_items(sessionID)
             email = session.customer_details.email
             send_order_confirmation(email,orderID,line_items)
-            return jsonify({'status': payment_status})
+            return jsonify({'status': payment_status}), 200
         else: 
-            return jsonify({'status': "unpaid"})
+            return jsonify({'status': "unpaid"}), 200
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
