@@ -510,7 +510,7 @@ def update_payment_status():
         payment_status = session.payment_status
 
         order = query_db("SELECT * FROM orders WHERE id = %s AND isPaid = true", args=(orderID,), one=True)
-        if order['ispaid']:
+        if order:
             return jsonify({'status': "paid"}), 200
 
         if payment_status == "paid":
