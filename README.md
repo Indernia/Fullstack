@@ -1,21 +1,4 @@
 # simple Read me
 
-# setup instructions 
-create file with sqlite3 cli by running
+In this project we created a backend for a restaurant ordering system that allows users to order and pay for the food from a restaurant.
 
-```shell
-sqlite3 database.db
-```
-
-if sqlite3 does not launch on its own do so with sqlite3 command
-
-then run
-
-
-```shell
-sqlite3 database.db
-.read create.sql
-.read populate.sql
-```
-
-sqlite file now created and ready to be used in the project. 
